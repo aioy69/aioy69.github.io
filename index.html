@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Метатеги для адаптивного дизайна и кодировки -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Научпоп-журнал</title>
+    <!-- Подключение Tailwind CSS через CDN для современного дизайна -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Подключение шрифта Inter от Google Fonts для чистого и современного внешнего вида -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Общие стили для всего документа, использующие шрифт Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+        /* Стили для скроллбара, чтобы он соответствовал тёмной теме */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2c2c44;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5b5b7c;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7a7ac2;
+        }
+    </style>
+</head>
+<body class="antialiased leading-relaxed text-gray-200">
+
+    <!-- Главный контейнер сайта -->
+    <div class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+        <!-- Секция заголовка -->
+        <header class="w-full max-w-4xl text-center py-8 mb-8">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-2 tracking-wide">
+                <span class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-transparent bg-clip-text">Мир Науки</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-400">Путешествие по тайнам Вселенной</p>
+        </header>
+
+        <!-- Контейнер для карточек с контентом -->
+        <main class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- Карточка статьи 1: Чёрные дыры -->
+            <div class="bg-[#2c2c44] rounded-xl shadow-2xl overflow-hidden transition-transform transform hover:scale-105 duration-300">
+                <!-- Тематическое изображение: черная дыра -->
+                <img src="https://placehold.co/800x600/5b5b7c/ffffff?text=Черная+Дыра" alt="Изображение черной дыры" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Загадки черных дыр</h2>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Черные дыры — это области пространства-времени, где гравитация настолько сильна, что даже свет не может её покинуть. Это самые загадочные объекты во Вселенной...
+                    </p>
+                    <!-- Кнопка "Читать далее" -->
+                    <button class="expand-btn w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 ease-in-out">
+                        Читать далее
+                    </button>
+                    <!-- Скрытый контент, который будет показан при нажатии -->
+                    <div class="hidden-content mt-4 hidden text-gray-300">
+                        <p>Их существование предсказал Альберт Эйнштейн в своей общей теории относительности, а первые свидетельства их существования были получены только спустя десятилетия. Сегодня ученые продолжают изучать эти объекты, используя передовые телескопы и компьютерные симуляции.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка статьи 2: Почему мы спим -->
+            <div class="bg-[#2c2c44] rounded-xl shadow-2xl overflow-hidden transition-transform transform hover:scale-105 duration-300">
+                <!-- Тематическое изображение: сон -->
+                <img src="https://placehold.co/800x600/5b5b7c/ffffff?text=Сон" alt="Изображение спящего человека" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Почему мы спим?</h2>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Сон кажется нам просто отдыхом, но на самом деле это сложный и жизненно важный процесс. Во время сна наш мозг активно работает...
+                    </p>
+                    <!-- Кнопка "Читать далее" -->
+                    <button class="expand-btn w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 ease-in-out">
+                        Читать далее
+                    </button>
+                    <!-- Скрытый контент -->
+                    <div class="hidden-content mt-4 hidden text-gray-300">
+                        <p>Он очищается от токсинов, укрепляет нервные связи и обрабатывает информацию, полученную за день. Недостаток сна может привести к серьезным проблемам со здоровьем, включая ухудшение памяти и ослабление иммунной системы.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка статьи 3: Искусственный интеллект -->
+            <div class="bg-[#2c2c44] rounded-xl shadow-2xl overflow-hidden transition-transform transform hover:scale-105 duration-300">
+                <!-- Тематическое изображение: нейронная сеть -->
+                <img src="https://placehold.co/800x600/5b5b7c/ffffff?text=Искусственный+Интеллект" alt="Изображение нейронной сети" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Искусственный интеллект: что дальше?</h2>
+                    <p class="text-gray-400 text-sm mb-4">
+                        ИИ уже не фантастика, а часть нашей повседневной жизни. От голосовых помощников до беспилотных автомобилей...
+                    </p>
+                    <!-- Кнопка "Читать далее" -->
+                    <button class="expand-btn w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 ease-in-out">
+                        Читать далее
+                    </button>
+                    <!-- Скрытый контент -->
+                    <div class="hidden-content mt-4 hidden text-gray-300">
+                        <p>ИИ продолжает развиваться с невероятной скоростью. Ученые и инженеры работают над созданием систем, которые смогут учиться, адаптироваться и принимать решения, как человек. Это открывает новые горизонты в медицине, науке и творчестве.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Футер сайта -->
+        <footer class="w-full max-w-4xl text-center py-8 mt-16 text-gray-500">
+            <p>&copy; 2024. Все права защищены. Создано с любовью к науке.</p>
+        </footer>
+
+    </div>
+
+    <!-- Скрипт для интерактивности -->
+    <script>
+        // Ждем полной загрузки документа
+        document.addEventListener('DOMContentLoaded', function() {
+            // Находим все кнопки с классом 'expand-btn'
+            const buttons = document.querySelectorAll('.expand-btn');
+
+            // Проходимся по каждой кнопке
+            buttons.forEach(button => {
+                // Добавляем обработчик события 'click'
+                button.addEventListener('click', () => {
+                    // Находим ближайший родительский элемент (карточку)
+                    const card = button.closest('div');
+                    // Находим скрытый контент внутри этой карточки
+                    const hiddenContent = card.querySelector('.hidden-content');
+                    // Переключаем класс 'hidden' для отображения/скрытия контента
+                    hiddenContent.classList.toggle('hidden');
+
+                    // Обновляем текст кнопки
+                    if (hiddenContent.classList.contains('hidden')) {
+                        button.textContent = 'Читать далее';
+                    } else {
+                        button.textContent = 'Свернуть';
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
