@@ -1,7 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import { getFirestore, collection, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyBn1F1ktpoTdp3J4eSW2rym1jKh4roelMM",
@@ -13,9 +11,8 @@ const firebaseConfig = {
   measurementId: "G-70BTKEQ4B6"
 };
 
-
-let db;
-let auth;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const articlesContainer = document.getElementById('articles-container');
 const loadingMessage = document.getElementById('loading-message');
@@ -64,12 +61,7 @@ function createCard(article) {
     return card;
 }
 
-async function initFirebaseAndLoadArticles() {
-    const app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    auth = getAuth(app);
-    await signInAnonymously(auth);
-
+function loadArticles() {
     const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
         if (loadingMessage) loadingMessage.style.display = 'none';
@@ -87,4 +79,4 @@ async function initFirebaseAndLoadArticles() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', initFirebaseAndLoadArticles);
+document.addEventListener('DOMContentLoaded', loadArticles);
