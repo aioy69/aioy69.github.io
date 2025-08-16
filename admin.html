@@ -1,404 +1,187 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a1a2e;
-            color: #e0e0e0;
-        }
-        .animated-bg {
-            background-image: linear-gradient(135deg, #1a1a2e, #2c2c44, #1a1a2e);
-            background-size: 200% 200%;
-            animation: gradient-animation 15s ease infinite;
-        }
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        /* Стили для скроллбара, чтобы он соответствовал тёмной теме */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #2c2c44;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #5b5b7c;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #7a7ac2;
-        }
-        /* Модальное окно */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ-панель</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="antialiased leading-relaxed text-gray-200 animated-bg">
+<body class="bg-[#1a1a2e] text-gray-200">
+  <div class="min-h-screen flex flex-col items-center p-4">
+    <header class="w-full max-w-4xl text-center py-8 mb-8">
+      <h1 class="text-4xl font-extrabold text-white">Панель администратора</h1>
+      <p class="text-gray-400">Управление статьями (добавление, редактирование, удаление)</p>
+    </header>
 
-    <div class="min-h-screen flex flex-col items-center p-4 md:p-8">
+    <main class="w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
+      <!-- Сообщения -->
+      <div id="status-message" class="text-center p-4 rounded-lg hidden"></div>
 
-        <header class="w-full max-w-4xl text-center py-8 mb-8">
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-2 tracking-wide">
-                <span class="bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-transparent bg-clip-text">Панель администратора</span>
-            </h1>
-            <p class="text-lg md:text-xl text-gray-400">Добавление, редактирование и удаление статей</p>
-        </header>
+      <!-- Форма -->
+      <form id="article-form" class="space-y-4">
+        <input id="title" placeholder="Заголовок" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
+        <textarea id="shortText" rows="2" placeholder="Краткое описание" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
+        <textarea id="fullText" rows="4" placeholder="Полный текст" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
+        <input id="image" placeholder="URL картинки" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
+        <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 rounded">Добавить статью</button>
+        <button type="button" id="cancel-edit" class="hidden w-full bg-gray-600 text-white py-2 rounded">Отмена</button>
+      </form>
 
-        <main class="w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
-            <!-- Сообщение о статусе -->
-            <div id="status-message" class="text-center p-4 rounded-lg hidden"></div>
+      <!-- Список статей -->
+      <div>
+        <h2 class="text-xl font-bold mb-4">Список статей</h2>
+        <div id="articles-list" class="space-y-2"></div>
+      </div>
+    </main>
+  </div>
 
-            <!-- Форма для добавления/редактирования статьи -->
-            <div id="form-section" class="space-y-6 hidden">
-                <h2 id="form-title" class="text-3xl font-bold text-center text-white">Добавить новую статью</h2>
-                <form id="article-form" class="space-y-6">
-                    <div>
-                        <label for="title" class="block text-sm font-medium text-gray-300">Заголовок</label>
-                        <input type="text" id="title" name="title" required class="mt-1 block w-full rounded-md bg-[#1a1a2e] border-transparent text-white focus:border-purple-500 focus:ring-purple-500">
-                    </div>
-                    <div>
-                        <label for="shortText" class="block text-sm font-medium text-gray-300">Краткое описание</label>
-                        <textarea id="shortText" name="shortText" rows="3" required class="mt-1 block w-full rounded-md bg-[#1a1a2e] border-transparent text-white focus:border-purple-500 focus:ring-purple-500"></textarea>
-                    </div>
-                    <div>
-                        <label for="fullText" class="block text-sm font-medium text-gray-300">Полный текст</label>
-                        <textarea id="fullText" name="fullText" rows="6" required class="mt-1 block w-full rounded-md bg-[#1a1a2e] border-transparent text-white focus:border-purple-500 focus:ring-purple-500"></textarea>
-                    </div>
-                    <div>
-                        <label for="image" class="block text-sm font-medium text-gray-300">Путь к изображению</label>
-                        <input type="text" id="image" name="image" required class="mt-1 block w-full rounded-md bg-[#1a1a2e] border-transparent text-white focus:border-purple-500 focus:ring-purple-500" placeholder="Например: images/new-article.jpg">
-                    </div>
-                    <button type="submit" id="submit-button" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:from-green-700 hover:to-blue-700 transition duration-300 ease-in-out">
-                        Добавить статью
-                    </button>
-                    <button type="button" id="cancel-edit-button" class="w-full bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-gray-600 transition duration-300 ease-in-out hidden">
-                        Отмена
-                    </button>
-                </form>
-            </div>
-
-            <!-- Список статей -->
-            <div>
-                <h2 class="text-3xl font-bold text-center text-white mb-6">Список статей</h2>
-                <div id="articles-list-container" class="space-y-4">
-                    <!-- Статьи будут загружаться сюда -->
-                    <div id="loading-message" class="text-center text-lg text-gray-400">
-                        Загрузка статей...
-                    </div>
-                </div>
-            </div>
-
-            <a href="index.html" class="mt-8 block text-center text-gray-400 hover:text-white transition-colors">
-                &larr; Вернуться на главную
-            </a>
-        </main>
-    </div>
-    
-    <!-- Модальное окно для подтверждения удаления -->
-    <div id="delete-confirm-modal" class="modal">
-      <div class="bg-[#2c2c44] p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
-        <p class="text-lg text-white mb-6">Вы уверены, что хотите удалить эту статью?</p>
-        <div class="flex justify-center space-x-4">
-          <button id="confirm-delete-button" class="bg-red-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-red-700 transition duration-300">
-            Удалить
-          </button>
-          <button id="cancel-delete-button" class="bg-gray-500 text-white font-semibold py-2 px-6 rounded-lg hover:bg-gray-600 transition duration-300">
-            Отмена
-          </button>
-        </div>
+  <!-- Модальное окно -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center">
+    <div class="bg-[#2c2c44] rounded-xl p-6 w-full max-w-lg">
+      <h3 id="modal-title" class="text-2xl font-bold text-white mb-2"></h3>
+      <p id="modal-short" class="text-gray-400 mb-2"></p>
+      <div id="modal-full" class="text-gray-300 mb-4"></div>
+      <div class="flex justify-end space-x-2">
+        <button id="edit-btn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Редактировать</button>
+        <button id="delete-btn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Удалить</button>
+        <button id="close-modal" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded">Закрыть</button>
       </div>
     </div>
-    
-    <script type="module">
-        // Импорт необходимых модулей Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import {
-            getAuth,
-            signInWithCustomToken,
-            onAuthStateChanged,
-            signInAnonymously
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import {
-            getFirestore,
-            collection,
-            addDoc,
-            onSnapshot,
-            query,
-            doc,
-            deleteDoc,
-            updateDoc,
-            getDoc
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  </div>
 
-        // DOM-элементы
-        const articleForm = document.getElementById('article-form');
-        const formTitle = document.getElementById('form-title');
-        const submitButton = document.getElementById('submit-button');
-        const cancelButton = document.getElementById('cancel-edit-button');
-        const statusMessage = document.getElementById('status-message');
-        const formSection = document.getElementById('form-section');
-        const articlesListContainer = document.getElementById('articles-list-container');
-        const loadingMessage = document.getElementById('loading-message');
-        const deleteModal = document.getElementById('delete-confirm-modal');
-        const confirmDeleteButton = document.getElementById('confirm-delete-button');
-        const cancelDeleteButton = document.getElementById('cancel-delete-button');
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { 
+      getFirestore, collection, addDoc, onSnapshot, orderBy, query, 
+      serverTimestamp, doc, updateDoc, deleteDoc, getDoc 
+    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        let db;
-        let auth;
-        let appId;
-        let editingDocId = null;
-        let docToDeleteId = null;
+    const firebaseConfig = {
+      apiKey: "AIzaSyBn1F1ktpoTdp3J4eSW2rym1jKh4roelMM",
+      authDomain: "admin-mir.firebaseapp.com",
+      projectId: "admin-mir",
+      storageBucket: "admin-mir.firebasestorage.app",
+      messagingSenderId: "579733301892",
+      appId: "1:579733301892:web:ff2236f12cc5a00dd7f0d1",
+      measurementId: "G-70BTKEQ4B6"
+    };
 
-        /**
-         * Усовершенствованная функция для ожидания, пока глобальные переменные Canvas не будут доступны.
-         * Использует механизм опроса вместо фиксированной задержки, что делает ее более надежной.
-         */
-        async function waitForFirebaseGlobals() {
-            let attempts = 0;
-            const maxAttempts = 50; // 50 * 100ms = 5 секунд
-            while (typeof __firebase_config === 'undefined' && attempts < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
-            }
-            if (typeof __firebase_config === 'undefined') {
-                throw new Error('Глобальные переменные конфигурации Firebase не найдены после нескольких попыток.');
-            }
-            return {
-                firebaseConfig: JSON.parse(__firebase_config),
-                initialAuthToken: typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null,
-                appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
-            };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    signInAnonymously(auth);
+
+    // DOM элементы
+    const form = document.getElementById('article-form');
+    const list = document.getElementById('articles-list');
+    const status = document.getElementById('status-message');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelBtn = document.getElementById('cancel-edit');
+
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalShort = document.getElementById('modal-short');
+    const modalFull = document.getElementById('modal-full');
+    const editBtn = document.getElementById('edit-btn');
+    const deleteBtn = document.getElementById('delete-btn');
+    const closeModal = document.getElementById('close-modal');
+
+    let editingId = null;
+    let currentId = null;
+
+    // Добавление/обновление
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const data = {
+          title: form.title.value,
+          shortText: form.shortText.value,
+          fullText: form.fullText.value,
+          image: form.image.value || "images/default.jpg",
+          createdAt: serverTimestamp()
+        };
+        if (editingId) {
+          await updateDoc(doc(db, "articles", editingId), data);
+          showStatus("Статья обновлена", "bg-blue-600");
+        } else {
+          await addDoc(collection(db, "articles"), data);
+          showStatus("Статья добавлена", "bg-green-600");
         }
+        form.reset();
+        submitBtn.textContent = "Добавить статью";
+        cancelBtn.classList.add("hidden");
+        editingId = null;
+      } catch (err) {
+        showStatus("Ошибка: " + err.message, "bg-red-600");
+      }
+    });
 
-        /**
-         * Инициализирует Firebase и настраивает прослушиватели данных.
-         */
-        async function initApp() {
-            try {
-                showStatusMessage('Инициализация Firebase...', 'bg-blue-500');
-                const globals = await waitForFirebaseGlobals();
-                appId = globals.appId;
-                
-                const app = initializeApp(globals.firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
+    cancelBtn.addEventListener("click", () => {
+      form.reset();
+      submitBtn.textContent = "Добавить статью";
+      cancelBtn.classList.add("hidden");
+      editingId = null;
+    });
 
-                showStatusMessage('Аутентификация...', 'bg-blue-500');
-                if (globals.initialAuthToken) {
-                    await signInWithCustomToken(auth, globals.initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        console.log("User is authenticated:", user.uid);
-                        formSection.classList.remove('hidden');
-                        showStatusMessage('Успешная аутентификация. Загрузка данных...', 'bg-green-500');
-                        fetchAndDisplayArticles();
-                    } else {
-                        console.log("No user is authenticated.");
-                        formSection.classList.add('hidden');
-                        showStatusMessage('Вы не авторизованы. Пожалуйста, войдите в систему.', 'bg-red-500');
-                    }
-                });
+    // Загрузка статей
+    const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      list.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const a = docSnap.data();
+        const el = document.createElement("div");
+        el.className = "p-3 bg-[#1a1a2e] rounded cursor-pointer hover:bg-[#33334d]";
+        el.textContent = a.title;
+        el.addEventListener("click", () => openModal(docSnap.id, a));
+        list.appendChild(el);
+      });
+    });
 
-            } catch (e) {
-                console.error("Критическая ошибка инициализации: ", e);
-                showStatusMessage(`Критическая ошибка: ${e.message}`, 'bg-red-500');
-            }
-        }
-        
-        /**
-         * Загружает статью для редактирования по её ID
-         * @param {string} articleId ID статьи
-         */
-        async function loadArticleForEditing(articleId) {
-            try {
-                const articleDocRef = doc(db, `/artifacts/${appId}/public/data/articles`, articleId);
-                const docSnap = await getDoc(articleDocRef);
-                
-                if (docSnap.exists()) {
-                    const article = docSnap.data();
-                    articleForm.title.value = article.title || '';
-                    articleForm.shortText.value = article.shortText || '';
-                    articleForm.fullText.value = article.fullText || '';
-                    articleForm.image.value = article.image || '';
-                    
-                    editingDocId = articleId;
-                    formTitle.textContent = 'Редактировать статью';
-                    submitButton.textContent = 'Сохранить изменения';
-                    cancelButton.classList.remove('hidden');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else {
-                    showStatusMessage('Статья не найдена', 'bg-red-500');
-                }
-            } catch (error) {
-                console.error("Ошибка при загрузке статьи: ", error);
-                showStatusMessage(`Ошибка при загрузке статьи: ${error.message}`, 'bg-red-500');
-            }
-        }
-        
-        // Функция для отображения статей с кнопками "редактировать" и "удалить"
-        function fetchAndDisplayArticles() {
-            const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
-            const articlesQuery = query(collection(db, articlesCollectionPath));
+    // Модалка
+    function openModal(id, article) {
+      currentId = id;
+      modalTitle.textContent = article.title;
+      modalShort.textContent = article.shortText;
+      modalFull.textContent = article.fullText;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
 
-            onSnapshot(articlesQuery, (querySnapshot) => {
-                articlesListContainer.innerHTML = ''; // Очистка списка
-                loadingMessage.classList.add('hidden'); // Скрываем сообщение о загрузке
+    closeModal.addEventListener("click", () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    });
 
-                if (querySnapshot.empty) {
-                    articlesListContainer.innerHTML = `<div class="text-center text-gray-400">Пока нет добавленных статей.</div>`;
-                } else {
-                    querySnapshot.forEach((doc) => {
-                        const article = doc.data();
-                        const articleId = doc.id;
-                        const articleElement = document.createElement('div');
-                        articleElement.className = 'bg-[#1a1a2e] p-4 rounded-lg flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0';
-                        articleElement.innerHTML = `
-                            <div class="flex-1">
-                                <h3 class="text-xl font-bold text-white">${article.title}</h3>
-                                <p class="text-sm text-gray-400 truncate">${article.shortText}</p>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button data-id="${articleId}" class="edit-button bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-200">
-                                    Редактировать
-                                </button>
-                                <button data-id="${articleId}" class="delete-button bg-red-600 text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-red-700 transition duration-200">
-                                    Удалить
-                                </button>
-                            </div>
-                        `;
-                        articlesListContainer.appendChild(articleElement);
-                    });
-                }
-            }, (error) => {
-                console.error("Error fetching documents: ", error);
-                articlesListContainer.innerHTML = `<div class="text-center text-gray-400">Ошибка при загрузке статей: ${error.message}</div>`;
-            });
-        }
+    editBtn.addEventListener("click", async () => {
+      if (!currentId) return;
+      const snap = await getDoc(doc(db, "articles", currentId));
+      if (snap.exists()) {
+        const a = snap.data();
+        form.title.value = a.title;
+        form.shortText.value = a.shortText;
+        form.fullText.value = a.fullText;
+        form.image.value = a.image;
+        editingId = currentId;
+        submitBtn.textContent = "Сохранить изменения";
+        cancelBtn.classList.remove("hidden");
+      }
+      closeModal.click();
+    });
 
-        // Обработчик отправки формы
-        articleForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (!db || !auth.currentUser) {
-                showStatusMessage('Ошибка: приложение не инициализировано или нет аутентификации.', 'bg-red-500');
-                return;
-            }
+    deleteBtn.addEventListener("click", async () => {
+      if (!currentId) return;
+      await deleteDoc(doc(db, "articles", currentId));
+      showStatus("Статья удалена", "bg-red-600");
+      closeModal.click();
+    });
 
-            const newArticleData = {
-                title: articleForm.title.value,
-                shortText: articleForm.shortText.value,
-                fullText: articleForm.fullText.value,
-                image: articleForm.image.value,
-                createdAt: new Date(),
-            };
-
-            try {
-                const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
-                if (editingDocId) {
-                    const articleDocRef = doc(db, articlesCollectionPath, editingDocId);
-                    await updateDoc(articleDocRef, newArticleData);
-                    showStatusMessage('Статья успешно обновлена!', 'bg-green-500');
-                } else {
-                    const articlesCollectionRef = collection(db, articlesCollectionPath);
-                    await addDoc(articlesCollectionRef, newArticleData);
-                    showStatusMessage('Статья успешно добавлена!', 'bg-green-500');
-                }
-                
-                // Сброс формы и режима редактирования
-                editingDocId = null;
-                articleForm.reset();
-                formTitle.textContent = 'Добавить новую статью';
-                submitButton.textContent = 'Добавить статью';
-                cancelButton.classList.add('hidden');
-            } catch (e) {
-                console.error("Error: ", e);
-                showStatusMessage(`Ошибка: ${e.message}`, 'bg-red-500');
-            }
-        });
-
-        // Обработчик для кнопок "Редактировать" и "Удалить"
-        articlesListContainer.addEventListener('click', (e) => {
-            const button = e.target;
-            const articleId = button.dataset.id;
-            
-            if (!articleId) return;
-
-            if (button.classList.contains('edit-button')) {
-                loadArticleForEditing(articleId);
-            } else if (button.classList.contains('delete-button')) {
-                docToDeleteId = articleId;
-                deleteModal.style.display = 'flex';
-            }
-        });
-
-        // Обработчик для кнопки отмены редактирования
-        cancelButton.addEventListener('click', () => {
-            editingDocId = null;
-            articleForm.reset();
-            formTitle.textContent = 'Добавить новую статью';
-            submitButton.textContent = 'Добавить статью';
-            cancelButton.classList.add('hidden');
-            showStatusMessage('Редактирование отменено.', 'bg-gray-500');
-        });
-
-        // Обработчик для модального окна удаления
-        confirmDeleteButton.addEventListener('click', async () => {
-          if (!docToDeleteId) return;
-          
-          try {
-            const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
-            const articleDocRef = doc(db, articlesCollectionPath, docToDeleteId);
-            await deleteDoc(articleDocRef);
-            showStatusMessage('Статья успешно удалена!', 'bg-green-500');
-          } catch (e) {
-            console.error("Error removing document: ", e);
-            showStatusMessage(`Ошибка при удалении: ${e.message}`, 'bg-red-500');
-          } finally {
-            docToDeleteId = null;
-            deleteModal.style.display = 'none';
-          }
-        });
-
-        cancelDeleteButton.addEventListener('click', () => {
-          docToDeleteId = null;
-          deleteModal.style.display = 'none';
-          showStatusMessage('Удаление отменено.', 'bg-gray-500');
-        });
-
-        // Вспомогательная функция для отображения сообщений
-        function showStatusMessage(text, colorClass) {
-            statusMessage.textContent = text;
-            statusMessage.className = `text-center p-4 rounded-lg text-white ${colorClass}`;
-            statusMessage.classList.remove('hidden');
-        }
-
-        // Запускаем инициализацию приложения после загрузки DOM.
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
+    function showStatus(msg, color) {
+      status.textContent = msg;
+      status.className = "p-2 text-white rounded " + color;
+      status.classList.remove("hidden");
+      setTimeout(() => status.classList.add("hidden"), 3000);
+    }
+  </script>
 </body>
 </html>
