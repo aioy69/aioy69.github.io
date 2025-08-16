@@ -163,8 +163,14 @@
         let docToDeleteId = null;
 
         async function initFirebase() {
+            // Проверяем, что конфигурация доступна.
+            if (!firebaseConfig) {
+                showStatusMessage('Критическая ошибка: Не удалось загрузить конфигурацию Firebase. Пожалуйста, попробуйте перезагрузить страницу.', 'bg-red-500');
+                console.error("Firebase config not found. The global '__firebase_config' variable is missing.");
+                return;
+            }
+
             try {
-                // Инициализация Firebase, которая теперь будет обрабатываться в блоке try-catch.
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -194,9 +200,7 @@
 
             } catch (e) {
                 console.error("Error during Firebase initialization or sign-in: ", e);
-                statusMessage.textContent = `Ошибка инициализации: ${e.message}`;
-                statusMessage.classList.remove('hidden');
-                statusMessage.classList.add('bg-red-500', 'text-white');
+                showStatusMessage(`Ошибка инициализации: ${e.message}`, 'bg-red-500');
             }
         }
         
@@ -349,7 +353,11 @@
             statusMessage.classList.remove('hidden');
         }
 
-        document.addEventListener('DOMContentLoaded', initFirebase);
+        // Запускаем инициализацию Firebase с небольшой задержкой, чтобы
+        // обеспечить доступность глобальных переменных от среды Canvas.
+        document.addEventListener('DOMContentLoaded', () => {
+          setTimeout(initFirebase, 100);
+        });
     </script>
 </body>
 </html>
