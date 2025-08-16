@@ -8,16 +8,29 @@
 </head>
 <body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
     <div class="min-h-screen flex flex-col items-center p-4 md:p-8">
-        <header class="w-full max-w-4xl text-center py-8 mb-8">
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2">
+        <header class="w-full max-w-5xl text-center py-8 mb-8">
+            <h1 class="text-5xl font-extrabold text-white mb-2">
                 <span class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-transparent bg-clip-text">Мир Науки</span>
             </h1>
             <p class="text-lg md:text-xl text-gray-400">Путешествие по тайнам Вселенной</p>
-            <nav class="mt-4">
-                <a href="about.html" class="inline-block bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg">О нас</a>
-                <a href="admin.html" class="inline-block ml-4 bg-gradient-to-r from-green-600 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg">Вход</a>
+            <nav class="mt-4 flex justify-center gap-4">
+                <a href="about.html" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg">О нас</a>
+                <a href="admin.html" class="bg-gradient-to-r from-green-600 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg">Вход</a>
             </nav>
         </header>
+
+        <!-- Поиск -->
+        <div class="w-full max-w-3xl mb-6">
+            <input id="search-input" type="text" placeholder="Поиск статей..." class="w-full p-3 rounded-lg bg-[#2c2c44] text-white placeholder-gray-400"/>
+        </div>
+
+        <!-- Фильтры -->
+        <div id="category-filters" class="flex flex-wrap justify-center gap-3 mb-8">
+            <button data-category="all" class="filter-btn bg-purple-600 px-4 py-2 rounded-lg text-white">Все</button>
+            <button data-category="Космос" class="filter-btn bg-indigo-600 px-4 py-2 rounded-lg text-white">Космос</button>
+            <button data-category="Физика" class="filter-btn bg-indigo-600 px-4 py-2 rounded-lg text-white">Физика</button>
+            <button data-category="Технологии" class="filter-btn bg-indigo-600 px-4 py-2 rounded-lg text-white">Технологии</button>
+        </div>
 
         <main id="articles-container" class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div id="loading-message" class="col-span-3 text-center text-lg text-gray-400">Загрузка статей...</div>
