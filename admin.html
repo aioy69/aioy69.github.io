@@ -24,7 +24,7 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        /* Стили для скроллбара */
+        /* Стили для скроллбара, чтобы он соответствовал тёмной теме */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -57,6 +57,7 @@
 <body class="antialiased leading-relaxed text-gray-200 animated-bg">
 
     <div class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
         <header class="w-full max-w-4xl text-center py-8 mb-8">
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-2 tracking-wide">
                 <span class="bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-transparent bg-clip-text">Панель администратора</span>
@@ -101,6 +102,7 @@
             <div>
                 <h2 class="text-3xl font-bold text-center text-white mb-6">Список статей</h2>
                 <div id="articles-list-container" class="space-y-4">
+                    <!-- Статьи будут загружаться сюда -->
                     <div id="loading-message" class="text-center text-lg text-gray-400">
                         Загрузка статей...
                     </div>
@@ -127,28 +129,29 @@
         </div>
       </div>
     </div>
-
+    
     <script type="module">
+        // Импорт необходимых модулей Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithCustomToken, 
-            onAuthStateChanged, 
-            signInAnonymously 
+        import {
+            getAuth,
+            signInWithCustomToken,
+            onAuthStateChanged,
+            signInAnonymously
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            onSnapshot, 
-            query, 
-            doc, 
-            deleteDoc, 
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            onSnapshot,
+            query,
+            doc,
+            deleteDoc,
             updateDoc,
             getDoc
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Получаем DOM-элементы
+        // DOM-элементы
         const articleForm = document.getElementById('article-form');
         const formTitle = document.getElementById('form-title');
         const submitButton = document.getElementById('submit-button');
@@ -161,14 +164,6 @@
         const confirmDeleteButton = document.getElementById('confirm-delete-button');
         const cancelDeleteButton = document.getElementById('cancel-delete-button');
 
-        // Проверяем, что все необходимые элементы существуют
-        if (!articleForm || !formTitle || !submitButton || !cancelButton || !statusMessage || 
-            !formSection || !articlesListContainer || !loadingMessage || !deleteModal || 
-            !confirmDeleteButton || !cancelDeleteButton) {
-            console.error('Не удалось найти один или несколько необходимых DOM-элементов');
-            return;
-        }
-
         let db;
         let auth;
         let appId;
@@ -176,8 +171,8 @@
         let docToDeleteId = null;
 
         /**
-         * Ожидает появления глобальных переменных конфигурации Firebase
-         * @returns {Promise<{firebaseConfig: object, initialAuthToken: string|null, appId: string}>}
+         * Усовершенствованная функция для ожидания, пока глобальные переменные Canvas не будут доступны.
+         * Использует механизм опроса вместо фиксированной задержки, что делает ее более надежной.
          */
         async function waitForFirebaseGlobals() {
             let attempts = 0;
@@ -186,11 +181,9 @@
                 await new Promise(resolve => setTimeout(resolve, 100));
                 attempts++;
             }
-            
             if (typeof __firebase_config === 'undefined') {
-                throw new Error('Глобальные переменные конфигурации Firebase не найдены');
+                throw new Error('Глобальные переменные конфигурации Firebase не найдены после нескольких попыток.');
             }
-            
             return {
                 firebaseConfig: JSON.parse(__firebase_config),
                 initialAuthToken: typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null,
@@ -199,8 +192,8 @@
         }
 
         /**
-         * Загружает статью для редактирования
-         * @param {string} articleId - ID статьи
+         * Загружает статью для редактирования по её ID
+         * @param {string} articleId ID статьи
          */
         async function loadArticleForEditing(articleId) {
             try {
@@ -227,12 +220,13 @@
                 showStatusMessage(`Ошибка при загрузке статьи: ${error.message}`, 'bg-red-500');
             }
         }
-
+        
         /**
-         * Инициализирует Firebase и аутентификацию
+         * Инициализирует Firebase и настраивает прослушиватели данных.
          */
-        async function initFirebase() {
+        async function initApp() {
             try {
+                showStatusMessage('Инициализация Firebase...', 'bg-blue-500');
                 const globals = await waitForFirebaseGlobals();
                 appId = globals.appId;
                 
@@ -240,97 +234,83 @@
                 auth = getAuth(app);
                 db = getFirestore(app);
 
+                showStatusMessage('Аутентификация...', 'bg-blue-500');
                 // Аутентификация пользователя
                 if (globals.initialAuthToken) {
                     await signInWithCustomToken(auth, globals.initialAuthToken);
                 } else {
                     await signInAnonymously(auth);
                 }
-
+                
                 // Слушатель состояния аутентификации
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
+                        console.log("User is authenticated:", user.uid);
                         formSection.classList.remove('hidden');
-                        statusMessage.classList.add('hidden');
-                        fetchAndDisplayArticles();
+                        showStatusMessage('Успешная аутентификация. Загрузка данных...', 'bg-green-500');
+                        fetchAndDisplayArticles(); // Загружаем статьи
                     } else {
+                        console.log("No user is authenticated.");
                         formSection.classList.add('hidden');
                         showStatusMessage('Вы не авторизованы. Пожалуйста, войдите в систему.', 'bg-red-500');
                     }
                 });
 
-            } catch (error) {
-                console.error("Ошибка инициализации Firebase: ", error);
-                showStatusMessage(`Ошибка инициализации: ${error.message}`, 'bg-red-500');
+            } catch (e) {
+                console.error("Критическая ошибка инициализации: ", e);
+                showStatusMessage(`Критическая ошибка: ${e.message}`, 'bg-red-500');
             }
         }
-        
-        /**
-         * Загружает и отображает список статей
-         */
+
+        // Функция для отображения статей с кнопками "редактировать" и "удалить"
         function fetchAndDisplayArticles() {
             const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
             const articlesQuery = query(collection(db, articlesCollectionPath));
 
             onSnapshot(articlesQuery, (querySnapshot) => {
-                articlesListContainer.innerHTML = '';
-                
-                if (querySnapshot.empty) {
-                    articlesListContainer.innerHTML = `
-                        <div class="text-center text-gray-400">Пока нет добавленных статей.</div>
-                    `;
-                    return;
-                }
-                
-                querySnapshot.forEach((doc) => {
-                    const article = doc.data();
-                    const articleId = doc.id;
-                    const articleElement = document.createElement('div');
-                    articleElement.className = 'bg-[#1a1a2e] p-4 rounded-lg flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0';
-                    articleElement.innerHTML = `
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-white">${article.title}</h3>
-                            <p class="text-sm text-gray-400 truncate">${article.shortText}</p>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button data-id="${articleId}" class="edit-button bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-200">
-                                Редактировать
-                            </button>
-                            <button data-id="${articleId}" class="delete-button bg-red-600 text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-red-700 transition duration-200">
-                                Удалить
-                            </button>
-                        </div>
-                    `;
-                    articlesListContainer.appendChild(articleElement);
-                });
-            }, (error) => {
-                console.error("Ошибка при загрузке статей: ", error);
-                articlesListContainer.innerHTML = `
-                    <div class="text-center text-gray-400">Ошибка при загрузке статей: ${error.message}</div>
-                `;
-            });
-        }
+                articlesListContainer.innerHTML = ''; // Очистка списка
+                loadingMessage.classList.add('hidden'); // Скрываем сообщение о загрузке
 
-        /**
-         * Показывает статусное сообщение
-         * @param {string} text - Текст сообщения
-         * @param {string} colorClass - Класс цвета фона (например, 'bg-green-500')
-         */
-        function showStatusMessage(text, colorClass) {
-            statusMessage.textContent = text;
-            statusMessage.className = `text-center p-4 rounded-lg text-white ${colorClass}`;
-            statusMessage.classList.remove('hidden');
-            
-            // Автоматически скрываем сообщение через 5 секунд
-            setTimeout(() => {
-                statusMessage.classList.add('hidden');
-            }, 5000);
+                if (querySnapshot.empty) {
+                    articlesListContainer.innerHTML = `<div class="text-center text-gray-400">Пока нет добавленных статей.</div>`;
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        const article = doc.data();
+                        const articleId = doc.id;
+                        const articleElement = document.createElement('div');
+                        articleElement.className = 'bg-[#1a1a2e] p-4 rounded-lg flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0';
+                        articleElement.innerHTML = `
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-white">${article.title}</h3>
+                                <p class="text-sm text-gray-400 truncate">${article.shortText}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button data-id="${articleId}" class="edit-button bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-200">
+                                    Редактировать
+                                </button>
+                                <button data-id="${articleId}" class="delete-button bg-red-600 text-white font-semibold py-2 px-4 rounded-md shadow hover:bg-red-700 transition duration-200">
+                                    Удалить
+                                </button>
+                            </div>
+                        `;
+                        articlesListContainer.appendChild(articleElement);
+                    });
+                }
+            }, (error) => {
+                console.error("Error fetching documents: ", error);
+                articlesListContainer.innerHTML = `<div class="text-center text-gray-400">Ошибка при загрузке статей: ${error.message}</div>`;
+            });
         }
 
         // Обработчик отправки формы
         articleForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            if (!db || !auth.currentUser) {
+                showStatusMessage('Ошибка: приложение не инициализировано или нет аутентификации.', 'bg-red-500');
+                return;
+            }
+
             const newArticleData = {
                 title: articleForm.title.value,
                 shortText: articleForm.shortText.value,
@@ -341,36 +321,34 @@
 
             try {
                 if (editingDocId) {
-                    // Режим редактирования
                     const articleDocRef = doc(db, `/artifacts/${appId}/public/data/articles`, editingDocId);
                     await updateDoc(articleDocRef, newArticleData);
                     showStatusMessage('Статья успешно обновлена!', 'bg-green-500');
                 } else {
-                    // Режим добавления
                     const articlesCollectionRef = collection(db, `/artifacts/${appId}/public/data/articles`);
                     await addDoc(articlesCollectionRef, newArticleData);
                     showStatusMessage('Статья успешно добавлена!', 'bg-green-500');
                 }
                 
-                // Сброс формы
+                // Сброс формы и режима редактирования
                 editingDocId = null;
                 articleForm.reset();
                 formTitle.textContent = 'Добавить новую статью';
                 submitButton.textContent = 'Добавить статью';
                 cancelButton.classList.add('hidden');
-            } catch (error) {
-                console.error("Ошибка при сохранении статьи: ", error);
-                showStatusMessage(`Ошибка: ${error.message}`, 'bg-red-500');
+            } catch (e) {
+                console.error("Error: ", e);
+                showStatusMessage(`Ошибка: ${e.message}`, 'bg-red-500');
             }
         });
 
-        // Обработчик кликов по списку статей
+        // Обработчик для кнопок "Редактировать" и "Удалить"
         articlesListContainer.addEventListener('click', (e) => {
             const button = e.target;
             const articleId = button.dataset.id;
             
             if (!articleId) return;
-            
+
             if (button.classList.contains('edit-button')) {
                 loadArticleForEditing(articleId);
             } else if (button.classList.contains('delete-button')) {
@@ -379,7 +357,7 @@
             }
         });
 
-        // Обработчик отмены редактирования
+        // Обработчик для кнопки отмены редактирования
         cancelButton.addEventListener('click', () => {
             editingDocId = null;
             articleForm.reset();
@@ -389,31 +367,38 @@
             showStatusMessage('Редактирование отменено.', 'bg-gray-500');
         });
 
-        // Обработчики модального окна удаления
+        // Обработчик для модального окна удаления
         confirmDeleteButton.addEventListener('click', async () => {
-            if (!docToDeleteId) return;
-            
-            try {
-                const articleDocRef = doc(db, `/artifacts/${appId}/public/data/articles`, docToDeleteId);
-                await deleteDoc(articleDocRef);
-                showStatusMessage('Статья успешно удалена!', 'bg-green-500');
-            } catch (error) {
-                console.error("Ошибка при удалении статьи: ", error);
-                showStatusMessage(`Ошибка при удалении: ${error.message}`, 'bg-red-500');
-            } finally {
-                docToDeleteId = null;
-                deleteModal.style.display = 'none';
-            }
+          if (!docToDeleteId) return;
+          
+          try {
+            const articleDocRef = doc(db, `/artifacts/${appId}/public/data/articles`, docToDeleteId);
+            await deleteDoc(articleDocRef);
+            showStatusMessage('Статья успешно удалена!', 'bg-green-500');
+          } catch (e) {
+            console.error("Error removing document: ", e);
+            showStatusMessage(`Ошибка при удалении: ${e.message}`, 'bg-red-500');
+          } finally {
+            docToDeleteId = null;
+            deleteModal.style.display = 'none';
+          }
         });
 
         cancelDeleteButton.addEventListener('click', () => {
-            docToDeleteId = null;
-            deleteModal.style.display = 'none';
-            showStatusMessage('Удаление отменено.', 'bg-gray-500');
+          docToDeleteId = null;
+          deleteModal.style.display = 'none';
+          showStatusMessage('Удаление отменено.', 'bg-gray-500');
         });
 
-        // Инициализация приложения после загрузки DOM
-        document.addEventListener('DOMContentLoaded', initFirebase);
+        // Вспомогательная функция для отображения сообщений
+        function showStatusMessage(text, colorClass) {
+            statusMessage.textContent = text;
+            statusMessage.className = `text-center p-4 rounded-lg text-white ${colorClass}`;
+            statusMessage.classList.remove('hidden');
+        }
+
+        // Запускаем инициализацию приложения после загрузки DOM.
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
