@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Админ-панель</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Quill -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 </head>
 <body class="bg-[#1a1a2e] text-gray-200">
   <div class="min-h-screen flex flex-col items-center p-4">
@@ -27,7 +31,10 @@
       <form id="article-form" class="space-y-4">
         <input id="title" placeholder="Заголовок" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <textarea id="shortText" rows="2" placeholder="Краткое описание" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
-        <textarea id="fullText" rows="4" placeholder="Полный текст" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
+        
+        <!-- 🔹 Quill Editor вместо textarea -->
+        <div id="editor" class="bg-white text-black rounded h-40"></div>
+        
         <input id="image" placeholder="URL картинки или images/название.jpg" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <input id="category" placeholder="Категория (например: Космос)" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 rounded">Добавить статью</button>
@@ -70,6 +77,19 @@
 
     let editId = null; // для редактирования статьи
 
+    // 🔹 Инициализация Quill
+    const quill = new Quill('#editor', {
+      theme: 'snow',
+      placeholder: 'Введите текст статьи...',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline'],
+          [{ 'list': 'bullet' }, { 'list': 'ordered' }],
+          [{ 'header': [1, 2, 3, false] }]
+        ]
+      }
+    });
+
     // 🔹 Авторизация
     loginBtn.addEventListener("click", async () => {
       const email = document.getElementById("login-email").value;
@@ -105,7 +125,7 @@
       const data = {
         title: form.title.value,
         shortText: form.shortText.value,
-        fullText: form.fullText.value,
+        fullText: quill.root.innerHTML, // берем HTML из редактора
         image: form.image.value || "images/default.jpg",
         category: form.category.value || "Без категории",
         createdAt: serverTimestamp()
@@ -122,6 +142,7 @@
           alert("Статья добавлена!");
         }
         form.reset();
+        quill.root.innerHTML = ""; // очищаем редактор
         loadArticles();
       } catch (err) {
         alert("Ошибка: " + err.message);
@@ -156,7 +177,7 @@
           const artDoc = snapshot.docs.find(d => d.id === editId).data();
           form.title.value = artDoc.title;
           form.shortText.value = artDoc.shortText;
-          form.fullText.value = artDoc.fullText;
+          quill.root.innerHTML = artDoc.fullText; // подставляем HTML в редактор
           form.image.value = artDoc.image;
           form.category.value = artDoc.category;
           document.getElementById("submit-btn").textContent = "Сохранить изменения";
