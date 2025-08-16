@@ -1,46 +1,40 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Научпоп-журнал</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mir Articles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
-    <div class="min-h-screen flex flex-col items-center p-4 md:p-8">
-        <header class="w-full max-w-5xl text-center py-8 mb-8">
-            <h1 class="text-5xl font-extrabold text-white mb-2">
-                <span class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-transparent bg-clip-text">Мир Науки</span>
-            </h1>
-            <p class="text-lg md:text-xl text-gray-400">Путешествие по тайнам Вселенной</p>
-            <nav class="mt-4 flex justify-center gap-4">
-                <a href="about.html" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg">О нас</a>
-                <a href="admin.html" class="bg-gradient-to-r from-green-600 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg">Вход</a>
-            </nav>
-        </header>
-
-        <!-- Поиск -->
-        <div class="w-full max-w-3xl mb-6">
-            <input id="search-input" type="text" placeholder="Поиск статей..." class="w-full p-3 rounded-lg bg-[#2c2c44] text-white placeholder-gray-400"/>
-        </div>
-
-        <!-- Фильтры -->
-        <div id="category-filters" class="flex flex-wrap justify-center gap-3 mb-8">
-            <button data-category="all" class="filter-btn bg-purple-600 px-4 py-2 rounded-lg text-white">Все</button>
-            <button data-category="Космос" class="filter-btn bg-indigo-600 px-4 py-2 rounded-lg text-white">Космос</button>
-            <button data-category="Физика" class="filter-btn bg-indigo-600 px-4 py-2 rounded-lg text-white">Физика</button>
-            <button data-category="Технологии" class="filter-btn bg-indigo-600 px-4 py-2 rounded-lg text-white">Технологии</button>
-        </div>
-
-        <main id="articles-container" class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div id="loading-message" class="col-span-3 text-center text-lg text-gray-400">Загрузка статей...</div>
-        </main>
-
-        <footer class="w-full max-w-4xl text-center py-8 mt-16 text-gray-500">
-            <p>&copy; 2025. Все права защищены.</p>
-        </footer>
+  <!-- Шапка -->
+  <header class="w-full bg-[#111122] shadow-md">
+    <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
+      <nav class="space-x-4">
+        <a href="index.html" class="hover:text-purple-400">Главная</a>
+        <a href="about.html" class="hover:text-purple-400">О проекте</a>
+        <a href="admin.html" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg">Вход</a>
+      </nav>
     </div>
+  </header>
 
-    <script type="module" src="articles.js"></script>
+  <!-- Контент -->
+  <main class="min-h-screen max-w-5xl mx-auto p-6">
+    <h2 class="text-3xl font-bold mb-6 text-center">Последние статьи</h2>
+
+    <!-- 🔹 Контейнер для статей -->
+    <section id="articles-container" class="grid gap-6 md:grid-cols-2">
+      <!-- Сюда будет подгружаться список статей -->
+    </section>
+  </main>
+
+  <!-- Подвал -->
+  <footer class="bg-[#111122] py-6 mt-12 text-center text-gray-400 text-sm">
+    © 2025 Mir Articles · Все права защищены
+  </footer>
+
+  <!-- Подключаем логику -->
+  <script type="module" src="articles.js"></script>
 </body>
 </html>
