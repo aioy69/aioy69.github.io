@@ -101,6 +101,12 @@
         const loadingMessage = document.getElementById('loading-message');
 
         async function initFirebase() {
+            // Добавлена проверка на наличие API-ключа перед инициализацией
+            if (!firebaseConfig.apiKey) {
+                loadingMessage.textContent = 'Ошибка: Конфигурация Firebase не найдена.';
+                return;
+            }
+
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
