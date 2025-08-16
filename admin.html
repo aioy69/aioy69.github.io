@@ -12,39 +12,21 @@
       <h1 class="text-4xl font-extrabold text-white">Панель администратора</h1>
     </header>
 
-    <!-- Уведомления -->
-    <div id="notify" class="hidden fixed top-4 right-4 px-4 py-2 rounded shadow-lg"></div>
-
-    <!-- Форма входа -->
-    <main id="login-section" class="w-full max-w-sm bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-4">
-      <h2 class="text-xl font-bold text-center mb-4">Вход</h2>
-      <input id="login-email" type="email" placeholder="Email" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
-      <input id="login-password" type="password" placeholder="Пароль" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
-      <button id="login-btn" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 rounded">Войти</button>
-      <div id="login-error" class="text-red-400 text-center text-sm hidden"></div>
-    </main>
-
-    <!-- Админка -->
-    <main id="admin-section" class="hidden w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
+    <main id="admin-section" class="w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
       <form id="article-form" class="space-y-4">
         <input id="title" placeholder="Заголовок" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <textarea id="shortText" rows="2" placeholder="Краткое описание" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
         <textarea id="fullText" rows="4" placeholder="Полный текст" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
         <input id="image" placeholder="URL картинки или images/название.jpg" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
+        <input id="category" placeholder="Категория (например: Космос)" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 rounded">Добавить статью</button>
       </form>
-
-      <div>
-        <h2 class="text-xl font-bold mb-4">Список статей</h2>
-        <div id="articles-list"></div>
-      </div>
     </main>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBn1F1ktpoTdp3J4eSW2rym1jKh4roelMM",
@@ -57,122 +39,27 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const notify = document.getElementById("notify");
-    function showNotify(text, color="bg-green-600") {
-      notify.textContent = text;
-      notify.className = color + " text-white fixed top-4 right-4 px-4 py-2 rounded shadow-lg";
-      notify.classList.remove("hidden");
-      setTimeout(() => notify.classList.add("hidden"), 3000);
-    }
-
-    const loginSection = document.getElementById("login-section");
-    const adminSection = document.getElementById("admin-section");
-    const loginBtn = document.getElementById("login-btn");
-    const loginEmail = document.getElementById("login-email");
-    const loginPassword = document.getElementById("login-password");
-    const loginError = document.getElementById("login-error");
-
     const form = document.getElementById("article-form");
-    const submitBtn = document.getElementById("submit-btn");
-    const list = document.getElementById("articles-list");
-
-    loginBtn.addEventListener("click", async () => {
-      try {
-        await signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value);
-      } catch (err) {
-        loginError.textContent = "Ошибка: " + err.message;
-        loginError.classList.remove("hidden");
-      }
-    });
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        loginSection.classList.add("hidden");
-        adminSection.classList.remove("hidden");
-        loadArticles();
-      } else {
-        loginSection.classList.remove("hidden");
-        adminSection.classList.add("hidden");
-      }
-    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
-        if (form.dataset.editId) {
-          await updateDoc(doc(db, "articles", form.dataset.editId), {
-            title: form.title.value,
-            shortText: form.shortText.value,
-            fullText: form.fullText.value,
-            image: form.image.value || "images/default.jpg",
-          });
-          showNotify("Изменения сохранены");
-          form.dataset.editId = "";
-          submitBtn.textContent = "Добавить статью";
-        } else {
-          await addDoc(collection(db, "articles"), {
-            title: form.title.value,
-            shortText: form.shortText.value,
-            fullText: form.fullText.value,
-            image: form.image.value || "images/default.jpg",
-            createdAt: serverTimestamp()
-          });
-          showNotify("Статья добавлена");
-        }
+        await addDoc(collection(db, "articles"), {
+          title: form.title.value,
+          shortText: form.shortText.value,
+          fullText: form.fullText.value,
+          image: form.image.value || "images/default.jpg",
+          category: form.category.value || "Без категории",
+          createdAt: serverTimestamp()
+        });
         form.reset();
+        alert("Статья добавлена!");
       } catch (err) {
-        showNotify("Ошибка: " + err.message, "bg-red-600");
+        alert("Ошибка: " + err.message);
       }
     });
-
-    function loadArticles() {
-      const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
-      onSnapshot(q, (snapshot) => {
-        list.innerHTML = "";
-        snapshot.forEach(docSnap => {
-          const a = docSnap.data();
-          const el = document.createElement("div");
-          el.className = "p-3 bg-[#1a1a2e] rounded mb-3 flex justify-between items-center";
-
-          const info = document.createElement("span");
-          info.textContent = a.title + " — " + (a.shortText || "");
-
-          const editBtn = document.createElement("button");
-          editBtn.textContent = "✏️";
-          editBtn.className = "ml-2 px-2 py-1 rounded bg-yellow-600 hover:bg-yellow-700";
-          editBtn.addEventListener("click", () => {
-            form.title.value = a.title;
-            form.shortText.value = a.shortText;
-            form.fullText.value = a.fullText;
-            form.image.value = a.image;
-            form.dataset.editId = docSnap.id;
-            submitBtn.textContent = "Сохранить изменения";
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          });
-
-          const delBtn = document.createElement("button");
-          delBtn.textContent = "🗑️";
-          delBtn.className = "ml-2 px-2 py-1 rounded bg-red-600 hover:bg-red-700";
-          delBtn.addEventListener("click", async () => {
-            if (confirm("Удалить статью?")) {
-              await deleteDoc(doc(db, "articles", docSnap.id));
-              showNotify("Статья удалена", "bg-red-600");
-            }
-          });
-
-          const controls = document.createElement("div");
-          controls.appendChild(editBtn);
-          controls.appendChild(delBtn);
-
-          el.appendChild(info);
-          el.appendChild(controls);
-          list.appendChild(el);
-        });
-      });
-    }
   </script>
 </body>
 </html>
