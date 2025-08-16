@@ -163,16 +163,8 @@
         let docToDeleteId = null;
 
         async function initFirebase() {
-            // Убрана проверка на apiKey, так как конфигурация всегда предоставляется средой
-            // и будет корректно загружена.
-            if (!firebaseConfig) {
-                 statusMessage.textContent = 'Ошибка: Конфигурация Firebase не найдена.';
-                 statusMessage.classList.remove('hidden');
-                 statusMessage.classList.add('bg-red-500', 'text-white');
-                 return;
-            }
-
             try {
+                // Инициализация Firebase, которая теперь будет обрабатываться в блоке try-catch.
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
