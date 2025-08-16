@@ -21,7 +21,9 @@
     </main>
 
     <!-- 🔹 Панель администратора -->
-    <main id="admin-section" class="hidden w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
+    <main id="admin-section" class="hidden w-full max-w-3xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
+      
+      <!-- Форма добавления / редактирования -->
       <form id="article-form" class="space-y-4">
         <input id="title" placeholder="Заголовок" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <textarea id="shortText" rows="2" placeholder="Краткое описание" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
@@ -30,13 +32,19 @@
         <input id="category" placeholder="Категория (например: Космос)" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 rounded">Добавить статью</button>
       </form>
+
+      <!-- Список статей -->
+      <section>
+        <h2 class="text-2xl mb-4 font-bold">Список статей</h2>
+        <div id="articles-list" class="space-y-4"></div>
+      </section>
     </main>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
     // 🔹 Конфиг Firebase
     const firebaseConfig = {
@@ -58,6 +66,9 @@
     const loginBtn = document.getElementById("login-btn");
     const loginError = document.getElementById("login-error");
     const form = document.getElementById("article-form");
+    const articlesList = document.getElementById("articles-list");
+
+    let editId = null; // для редактирования статьи
 
     // 🔹 Авторизация
     loginBtn.addEventListener("click", async () => {
@@ -76,6 +87,7 @@
         if (user.email === "zak2067@gmail.com") {
           loginSection.classList.add("hidden");
           adminSection.classList.remove("hidden");
+          loadArticles();
         } else {
           alert("У вас нет доступа!");
           signOut(auth);
@@ -87,24 +99,81 @@
       }
     });
 
-    // 🔹 Добавление статьи
+    // 🔹 Добавление / Редактирование статьи
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const data = {
+        title: form.title.value,
+        shortText: form.shortText.value,
+        fullText: form.fullText.value,
+        image: form.image.value || "images/default.jpg",
+        category: form.category.value || "Без категории",
+        createdAt: serverTimestamp()
+      };
+
       try {
-        await addDoc(collection(db, "articles"), {
-          title: form.title.value,
-          shortText: form.shortText.value,
-          fullText: form.fullText.value,
-          image: form.image.value || "images/default.jpg",
-          category: form.category.value || "Без категории",
-          createdAt: serverTimestamp()
-        });
+        if (editId) {
+          await updateDoc(doc(db, "articles", editId), data);
+          alert("Статья обновлена!");
+          editId = null;
+          document.getElementById("submit-btn").textContent = "Добавить статью";
+        } else {
+          await addDoc(collection(db, "articles"), data);
+          alert("Статья добавлена!");
+        }
         form.reset();
-        alert("Статья добавлена!");
+        loadArticles();
       } catch (err) {
         alert("Ошибка: " + err.message);
       }
     });
+
+    // 🔹 Загрузка статей
+    async function loadArticles() {
+      articlesList.innerHTML = "";
+      const snapshot = await getDocs(collection(db, "articles"));
+      snapshot.forEach(docSnap => {
+        const art = docSnap.data();
+        const div = document.createElement("div");
+        div.className = "p-4 bg-[#1a1a2e] rounded flex justify-between items-center";
+        div.innerHTML = `
+          <div>
+            <h3 class="font-bold">${art.title}</h3>
+            <p class="text-sm">${art.shortText}</p>
+          </div>
+          <div class="space-x-2">
+            <button class="edit bg-blue-600 px-2 py-1 rounded" data-id="${docSnap.id}">✏</button>
+            <button class="delete bg-red-600 px-2 py-1 rounded" data-id="${docSnap.id}">🗑</button>
+          </div>
+        `;
+        articlesList.appendChild(div);
+      });
+
+      // Кнопки редактирования
+      document.querySelectorAll(".edit").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          editId = btn.dataset.id;
+          const artDoc = snapshot.docs.find(d => d.id === editId).data();
+          form.title.value = artDoc.title;
+          form.shortText.value = artDoc.shortText;
+          form.fullText.value = artDoc.fullText;
+          form.image.value = artDoc.image;
+          form.category.value = artDoc.category;
+          document.getElementById("submit-btn").textContent = "Сохранить изменения";
+        });
+      });
+
+      // Кнопки удаления
+      document.querySelectorAll(".delete").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          if (confirm("Удалить статью?")) {
+            await deleteDoc(doc(db, "articles", btn.dataset.id));
+            alert("Статья удалена!");
+            loadArticles();
+          }
+        });
+      });
+    }
   </script>
 </body>
 </html>
