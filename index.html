@@ -1,195 +1,159 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <!-- Метатеги для адаптивного дизайна и кодировки -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Блог</title>
+    <title>Научпоп-журнал</title>
+    <!-- Подключение Tailwind CSS через CDN для современного дизайна -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Подключение шрифта Inter от Google Fonts для чистого и современного внешнего вида -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Общие стили для всего документа, использующие шрифт Inter */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #1a1a2e;
             color: #e0e0e0;
         }
-        .animated-bg {
-            background-image: linear-gradient(135deg, #1a1a2e, #2c2c44, #1a1a2e);
-            background-size: 200% 200%;
-            animation: gradient-animation 15s ease infinite;
+        /* Стили для скроллбара, чтобы он соответствовал тёмной теме */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        ::-webkit-scrollbar-track {
+            background: #2c2c44;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5b5b7c;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7a7ac2;
         }
     </style>
 </head>
-<body class="antialiased leading-relaxed text-gray-200 animated-bg">
+<body class="antialiased leading-relaxed text-gray-200">
 
+    <!-- Главный контейнер сайта -->
     <div class="min-h-screen flex flex-col items-center p-4 md:p-8">
 
+        <!-- Секция заголовка -->
         <header class="w-full max-w-4xl text-center py-8 mb-8">
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-2 tracking-wide">
-                <span class="bg-gradient-to-r from-teal-500 via-blue-500 to-purple-500 text-transparent bg-clip-text">Добро пожаловать в мой блог</span>
+                <span class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-transparent bg-clip-text">Мир Науки</span>
             </h1>
-            <p class="text-lg md:text-xl text-gray-400">Последние статьи</p>
+            <p class="text-lg md:text-xl text-gray-400">Путешествие по тайнам Вселенной</p>
+            <nav class="mt-4">
+                <!-- Обновленная кнопка "О нас" с градиентным стилем -->
+                <a href="about.html" class="inline-block bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 ease-in-out">
+                    О нас
+                </a>
+            </nav>
         </header>
 
-        <main class="w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
-            <!-- Сообщение о статусе -->
-            <div id="status-message" class="text-center p-4 rounded-lg hidden"></div>
+        <!-- Контейнер для карточек с контентом -->
+        <main class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-            <!-- Список статей -->
-            <div>
-                <div id="articles-list-container" class="space-y-6">
-                    <!-- Статьи будут загружаться сюда -->
-                    <div id="loading-message" class="text-center text-lg text-gray-400">
-                        Загрузка статей...
+            <!-- Карточка статьи 1: Чёрные дыры -->
+            <div class="bg-[#2c2c44] rounded-xl shadow-2xl overflow-hidden transition-transform transform hover:scale-105 duration-300">
+                <!-- Тематическое изображение: черная дыра -->
+                <img src="images/black-hole.jpg" alt="Изображение черной дыры" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Загадки черных дыр</h2>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Черные дыры — это области пространства-времени, где гравитация настолько сильна, что даже свет не может её покинуть. Это самые загадочные объекты во Вселенной...
+                    </p>
+                    <!-- Кнопка "Читать далее" -->
+                    <button class="expand-btn w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 ease-in-out">
+                        Читать далее
+                    </button>
+                    <!-- Скрытый контент, который будет показан при нажатии -->
+                    <div class="hidden-content mt-4 hidden text-gray-300">
+                        <p>Их существование предсказал Альберт Эйнштейн в своей общей теории относительности, а первые свидетельства их существования были получены только спустя десятилетия. Сегодня ученые продолжают изучать эти объекты, используя передовые телескопы и компьютерные симуляции.</p>
                     </div>
                 </div>
             </div>
 
-            <a href="admin-panel.html" class="mt-8 block text-center text-gray-400 hover:text-white transition-colors">
-                &rarr; Перейти в админ-панель
-            </a>
+            <!-- Карточка статьи 2: Почему мы спим -->
+            <div class="bg-[#2c2c44] rounded-xl shadow-2xl overflow-hidden transition-transform transform hover:scale-105 duration-300">
+                <!-- Тематическое изображение: сон -->
+                <img src="images/sleep.jpg" alt="Изображение спящего человека" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Почему мы спим?</h2>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Сон кажется нам просто отдыхом, но на самом деле это сложный и жизненно важный процесс. Во время сна наш мозг активно работает...
+                    </p>
+                    <!-- Кнопка "Читать далее" -->
+                    <button class="expand-btn w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 ease-in-out">
+                        Читать далее
+                    </button>
+                    <!-- Скрытый контент -->
+                    <div class="hidden-content mt-4 hidden text-gray-300">
+                        <p>Он очищается от токсинов, укрепляет нервные связи и обрабатывает информацию, полученную за день. Недостаток сна может привести к серьезным проблемам со здоровьем, включая ухудшение памяти и ослабление иммунной системы.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка статьи 3: Искусственный интеллект -->
+            <div class="bg-[#2c2c44] rounded-xl shadow-2xl overflow-hidden transition-transform transform hover:scale-105 duration-300">
+                <!-- Тематическое изображение: нейронная сеть -->
+                <img src="images/ai.jpg" alt="Изображение нейронной сети" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Искусственный интеллект: что дальше?</h2>
+                    <p class="text-gray-400 text-sm mb-4">
+                        ИИ уже не фантастика, а часть нашей повседневной жизни. От голосовых помощников до беспилотных автомобилей...
+                    </p>
+                    <!-- Кнопка "Читать далее" -->
+                    <button class="expand-btn w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 ease-in-out">
+                        Читать далее
+                    </button>
+                    <!-- Скрытый контент -->
+                    <div class="hidden-content mt-4 hidden text-gray-300">
+                        <p>ИИ продолжает развиваться с невероятной скоростью. Ученые и инженеры работают над созданием систем, которые смогут учиться, адаптироваться и принимать решения, как человек. Это открывает новые горизонты в медицине, науке и творчестве.</p>
+                    </div>
+                </div>
+            </div>
+
         </main>
+
+        <!-- Футер сайта -->
+        <footer class="w-full max-w-4xl text-center py-8 mt-16 text-gray-500">
+            <p>&copy; 2025. Все права защищены. Создано с любовью к науке.</p>
+        </footer>
+
     </div>
 
-    <script type="module">
-        // Импорт необходимых модулей Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import {
-            getAuth,
-            signInWithCustomToken,
-            onAuthStateChanged,
-            signInAnonymously
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import {
-            getFirestore,
-            collection,
-            onSnapshot,
-            query
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- Скрипт для интерактивности -->
+    <script>
+        // Ждем полной загрузки документа
+        document.addEventListener('DOMContentLoaded', function() {
+            // Находим все кнопки с классом 'expand-btn'
+            const buttons = document.querySelectorAll('.expand-btn');
 
-        // DOM-элементы
-        const statusMessage = document.getElementById('status-message');
-        const articlesListContainer = document.getElementById('articles-list-container');
-        const loadingMessage = document.getElementById('loading-message');
+            // Проходимся по каждой кнопке
+            buttons.forEach(button => {
+                // Добавляем обработчик события 'click'
+                button.addEventListener('click', () => {
+                    // Находим ближайший родительский элемент (карточку)
+                    const card = button.closest('div');
+                    // Находим скрытый контент внутри этой карточки
+                    const hiddenContent = card.querySelector('.hidden-content');
+                    // Переключаем класс 'hidden' для отображения/скрытия контента
+                    hiddenContent.classList.toggle('hidden');
 
-        let db;
-        let auth;
-        let appId;
-        let unsubscribe; // Переменная для хранения функции отмены подписки
-
-        /**
-         * Усовершенствованная функция для ожидания, пока глобальные переменные Canvas не будут доступны.
-         * Использует механизм опроса вместо фиксированной задержки, что делает ее более надежной.
-         */
-        async function waitForFirebaseGlobals() {
-            let attempts = 0;
-            const maxAttempts = 50; // 50 * 100ms = 5 секунд
-            while (typeof __firebase_config === 'undefined' && attempts < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
-            }
-            if (typeof __firebase_config === 'undefined') {
-                throw new Error('Критическая ошибка: Не удалось загрузить конфигурацию приложения. Пожалуйста, обновите страницу.');
-            }
-            return {
-                firebaseConfig: JSON.parse(__firebase_config),
-                initialAuthToken: typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null,
-                appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
-            };
-        }
-
-        /**
-         * Инициализирует Firebase и настраивает прослушиватели данных.
-         */
-        async function initApp() {
-            try {
-                showStatusMessage('Инициализация Firebase...', 'bg-blue-500');
-                const globals = await waitForFirebaseGlobals();
-                appId = globals.appId;
-                
-                const app = initializeApp(globals.firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                showStatusMessage('Аутентификация...', 'bg-blue-500');
-                // Аутентификация пользователя
-                if (globals.initialAuthToken) {
-                    await signInWithCustomToken(auth, globals.initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                // Слушатель состояния аутентификации
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        console.log("User is authenticated:", user.uid);
-                        showStatusMessage('Успешная аутентификация. Загрузка данных...', 'bg-green-500');
-                        fetchAndDisplayArticles(); // Загружаем статьи
+                    // Обновляем текст кнопки
+                    if (hiddenContent.classList.contains('hidden')) {
+                        button.textContent = 'Читать далее';
                     } else {
-                        console.log("No user is authenticated.");
-                        showStatusMessage('Вы не авторизованы. Пожалуйста, войдите в систему.', 'bg-red-500');
+                        button.textContent = 'Свернуть';
                     }
                 });
-
-            } catch (e) {
-                console.error("Критическая ошибка инициализации: ", e);
-                showStatusMessage(`Критическая ошибка: ${e.message}`, 'bg-red-500');
-            }
-        }
-
-        // Функция для отображения статей
-        function fetchAndDisplayArticles() {
-            // Если уже есть активный слушатель, отключаем его, чтобы избежать дублирования
-            if (unsubscribe) {
-                unsubscribe();
-            }
-
-            const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
-            const articlesQuery = query(collection(db, articlesCollectionPath));
-
-            unsubscribe = onSnapshot(articlesQuery, (querySnapshot) => {
-                articlesListContainer.innerHTML = ''; // Очистка списка
-                loadingMessage.classList.add('hidden'); // Скрываем сообщение о загрузке
-
-                if (querySnapshot.empty) {
-                    articlesListContainer.innerHTML = `<div class="text-center text-gray-400">Пока нет добавленных статей.</div>`;
-                } else {
-                    querySnapshot.forEach((doc) => {
-                        const article = doc.data();
-                        const articleId = doc.id;
-                        const articleElement = document.createElement('div');
-                        articleElement.className = 'bg-[#1a1a2e] p-6 rounded-lg shadow-md space-y-4';
-                        articleElement.innerHTML = `
-                            <h3 class="text-2xl font-bold text-white">${article.title}</h3>
-                            ${article.image ? `<img src="${article.image}" alt="Изображение для статьи" class="w-full h-48 object-cover rounded-md">` : ''}
-                            <p class="text-md text-gray-300">${article.shortText}</p>
-                            <!-- Здесь можно добавить кнопку "Читать далее", если у вас есть отдельная страница для каждой статьи -->
-                            <div class="text-right text-sm text-gray-500 mt-2">ID статьи: ${articleId}</div>
-                        `;
-                        articlesListContainer.appendChild(articleElement);
-                    });
-                }
-            }, (error) => {
-                console.error("Error fetching documents: ", error);
-                articlesListContainer.innerHTML = `<div class="text-center text-gray-400">Ошибка при загрузке статей: ${error.message}</div>`;
             });
-        }
-
-        // Вспомогательная функция для отображения сообщений
-        function showStatusMessage(text, colorClass) {
-            statusMessage.textContent = text;
-            statusMessage.className = `text-center p-4 rounded-lg text-white ${colorClass}`;
-            statusMessage.classList.remove('hidden');
-        }
-
-        // Запускаем инициализацию приложения после загрузки DOM.
-        document.addEventListener('DOMContentLoaded', initApp);
+        });
     </script>
+
 </body>
 </html>
+
