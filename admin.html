@@ -192,6 +192,45 @@
         }
 
         /**
+         * Инициализирует Firebase и настраивает прослушиватели данных.
+         */
+        async function initApp() {
+            try {
+                showStatusMessage('Инициализация Firebase...', 'bg-blue-500');
+                const globals = await waitForFirebaseGlobals();
+                appId = globals.appId;
+                
+                const app = initializeApp(globals.firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                showStatusMessage('Аутентификация...', 'bg-blue-500');
+                if (globals.initialAuthToken) {
+                    await signInWithCustomToken(auth, globals.initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        console.log("User is authenticated:", user.uid);
+                        formSection.classList.remove('hidden');
+                        showStatusMessage('Успешная аутентификация. Загрузка данных...', 'bg-green-500');
+                        fetchAndDisplayArticles();
+                    } else {
+                        console.log("No user is authenticated.");
+                        formSection.classList.add('hidden');
+                        showStatusMessage('Вы не авторизованы. Пожалуйста, войдите в систему.', 'bg-red-500');
+                    }
+                });
+
+            } catch (e) {
+                console.error("Критическая ошибка инициализации: ", e);
+                showStatusMessage(`Критическая ошибка: ${e.message}`, 'bg-red-500');
+            }
+        }
+        
+        /**
          * Загружает статью для редактирования по её ID
          * @param {string} articleId ID статьи
          */
@@ -221,47 +260,6 @@
             }
         }
         
-        /**
-         * Инициализирует Firebase и настраивает прослушиватели данных.
-         */
-        async function initApp() {
-            try {
-                showStatusMessage('Инициализация Firebase...', 'bg-blue-500');
-                const globals = await waitForFirebaseGlobals();
-                appId = globals.appId;
-                
-                const app = initializeApp(globals.firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                showStatusMessage('Аутентификация...', 'bg-blue-500');
-                // Аутентификация пользователя
-                if (globals.initialAuthToken) {
-                    await signInWithCustomToken(auth, globals.initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                // Слушатель состояния аутентификации
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        console.log("User is authenticated:", user.uid);
-                        formSection.classList.remove('hidden');
-                        showStatusMessage('Успешная аутентификация. Загрузка данных...', 'bg-green-500');
-                        fetchAndDisplayArticles(); // Загружаем статьи
-                    } else {
-                        console.log("No user is authenticated.");
-                        formSection.classList.add('hidden');
-                        showStatusMessage('Вы не авторизованы. Пожалуйста, войдите в систему.', 'bg-red-500');
-                    }
-                });
-
-            } catch (e) {
-                console.error("Критическая ошибка инициализации: ", e);
-                showStatusMessage(`Критическая ошибка: ${e.message}`, 'bg-red-500');
-            }
-        }
-
         // Функция для отображения статей с кнопками "редактировать" и "удалить"
         function fetchAndDisplayArticles() {
             const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
@@ -320,12 +318,13 @@
             };
 
             try {
+                const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
                 if (editingDocId) {
-                    const articleDocRef = doc(db, `/artifacts/${appId}/public/data/articles`, editingDocId);
+                    const articleDocRef = doc(db, articlesCollectionPath, editingDocId);
                     await updateDoc(articleDocRef, newArticleData);
                     showStatusMessage('Статья успешно обновлена!', 'bg-green-500');
                 } else {
-                    const articlesCollectionRef = collection(db, `/artifacts/${appId}/public/data/articles`);
+                    const articlesCollectionRef = collection(db, articlesCollectionPath);
                     await addDoc(articlesCollectionRef, newArticleData);
                     showStatusMessage('Статья успешно добавлена!', 'bg-green-500');
                 }
@@ -372,7 +371,8 @@
           if (!docToDeleteId) return;
           
           try {
-            const articleDocRef = doc(db, `/artifacts/${appId}/public/data/articles`, docToDeleteId);
+            const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
+            const articleDocRef = doc(db, articlesCollectionPath, docToDeleteId);
             await deleteDoc(articleDocRef);
             showStatusMessage('Статья успешно удалена!', 'bg-green-500');
           } catch (e) {
