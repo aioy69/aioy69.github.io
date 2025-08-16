@@ -4,76 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>О нас - Научпоп-журнал</title>
-    <!-- Подключение Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Подключение шрифта Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a1a2e;
-            color: #e0e0e0;
-        }
-        /* Анимированный фон для стилистики */
-        .animated-bg {
-            background-image: linear-gradient(135deg, #1a1a2e, #2c2c44, #1a1a2e);
-            background-size: 200% 200%;
-            animation: gradient-animation 15s ease infinite;
-        }
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        /* Стили для скроллбара, чтобы он соответствовал тёмной теме */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #2c2c44;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #5b5b7c;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #7a7ac2;
-        }
-    </style>
 </head>
-<body class="antialiased leading-relaxed text-gray-200 animated-bg">
-    <!-- Секция с заголовком и описанием -->
+<body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
     <div class="min-h-screen flex flex-col items-center p-4 md:p-8">
-        <!-- Главный заголовок -->
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4 text-center">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 text-center">
             <span class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-transparent bg-clip-text">О нас</span>
         </h1>
         <p class="text-lg md:text-xl text-gray-400 max-w-3xl text-center mb-12">
             Мы — команда увлеченных исследователей, писателей и дизайнеров, объединенных одной целью: делать науку доступной и увлекательной для всех.
         </p>
 
-        <!-- Секция миссии -->
         <div class="w-full max-w-5xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 mb-12">
             <h2 class="text-3xl font-bold text-white mb-4 text-center">Наша Миссия</h2>
             <p class="text-gray-400 text-center">
-                Наша миссия — разрушать барьеры между сложными научными концепциями и широкой аудиторией. Мы верим, что каждый человек имеет право на понимание мира, в котором он живет. Через наши статьи, видео и проекты мы стремимся вдохновлять на любопытство и открывать новые горизонты знаний.
+                Наша миссия — разрушать барьеры между сложными научными концепциями и широкой аудиторией. Мы верим, что каждый человек имеет право на понимание мира, в котором он живет.
             </p>
         </div>
-        
-        <!-- Кнопка "Вернуться на главную" -->
-        <a href="index.html" class="mt-8 inline-block bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 ease-in-out">
-            Вернуться на главную
-        </a>
 
-        <!-- Новая кнопка "Написать в Telegram" -->
-        <a href="https://t.me/xooxs" target="_blank" class="mt-4 inline-block bg-[#0088cc] text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-[#0077b3] transition duration-300 ease-in-out">
-            <svg class="w-6 h-6 inline-block mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.301 8.527c.18.271.12.585-.098.803l-4.57 4.57c-.195.195-.451.293-.707.293s-.512-.098-.707-.293l-2.285-2.285c-.39-.39-.39-1.023 0-1.414s1.023-.39 1.414 0l1.578 1.578 3.863-3.863c.39-.39 1.023-.39 1.414 0s.39 1.023 0 1.414z"/>
-            </svg>
+        <a href="index.html" class="mt-8 inline-block bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg">Вернуться на главную</a>
+
+        <a href="https://t.me/xooxs" target="_blank" class="mt-4 inline-flex items-center bg-[#0088cc] text-white font-semibold py-3 px-6 rounded-lg shadow-lg">
+            <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 6.63 5.37 12 12 12s12-5.37 12-12S18.63 0 12 0zm5.7 8.3-2.1 9.2c-.16.7-.59.87-1.19.54l-3.28-2.42-1.58 1.53c-.18.18-.32.32-.66.32l.24-3.34 6.08-5.5c.26-.24-.06-.37-.41-.13l-7.53 4.75-3.24-1.02c-.7-.22-.72-.7.15-1.04l12.73-4.9c.59-.22 1.1.13.91.97z"/></svg>
             Написать в Telegram
         </a>
+
+        <footer class="w-full text-center py-8 mt-16 text-gray-500">
+            <p>&copy; 2025. Все права защищены. Научпоп-журнал.</p>
+        </footer>
     </div>
 </body>
 </html>
