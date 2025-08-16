@@ -137,12 +137,6 @@
         import { getAuth, signInWithCustomToken, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Используем глобальные переменные для конфигурации, предоставленные средой Canvas.
-        // Это более надежный способ, чем хардкодить значения.
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
         // DOM-элементы
         const articleForm = document.getElementById('article-form');
         const formTitle = document.getElementById('form-title');
@@ -162,22 +156,40 @@
         let editingDocId = null;
         let docToDeleteId = null;
 
-        async function initFirebase() {
-            // Проверяем, что конфигурация доступна.
-            if (!firebaseConfig) {
-                showStatusMessage('Критическая ошибка: Не удалось загрузить конфигурацию Firebase. Пожалуйста, попробуйте перезагрузить страницу.', 'bg-red-500');
-                console.error("Firebase config not found. The global '__firebase_config' variable is missing.");
-                return;
+        /**
+         * Усовершенствованная функция для ожидания, пока глобальные переменные Canvas не будут доступны.
+         * Использует механизм опроса вместо фиксированной задержки, что делает ее более надежной.
+         */
+        async function waitForFirebaseGlobals() {
+            let attempts = 0;
+            const maxAttempts = 50; // Максимальное количество попыток (50 * 100 мс = 5 секунд)
+            while (typeof __firebase_config === 'undefined' && attempts < maxAttempts) {
+                // Ожидание 100 мс перед следующей попыткой
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
             }
+            if (typeof __firebase_config === 'undefined') {
+                throw new Error('Глобальные переменные конфигурации Firebase не найдены после нескольких попыток.');
+            }
+            return {
+                firebaseConfig: JSON.parse(__firebase_config),
+                initialAuthToken: typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null,
+                appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
+            };
+        }
 
+        async function initFirebase() {
             try {
-                const app = initializeApp(firebaseConfig);
+                // Ждём, пока глобальные переменные станут доступными
+                const globals = await waitForFirebaseGlobals();
+                
+                const app = initializeApp(globals.firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
 
                 // Аутентификация пользователя
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
+                if (globals.initialAuthToken) {
+                    await signInWithCustomToken(auth, globals.initialAuthToken);
                 } else {
                     await signInAnonymously(auth);
                 }
@@ -353,11 +365,8 @@
             statusMessage.classList.remove('hidden');
         }
 
-        // Запускаем инициализацию Firebase с небольшой задержкой, чтобы
-        // обеспечить доступность глобальных переменных от среды Canvas.
-        document.addEventListener('DOMContentLoaded', () => {
-          setTimeout(initFirebase, 100);
-        });
+        // Запускаем инициализацию Firebase после загрузки DOM.
+        document.addEventListener('DOMContentLoaded', initFirebase);
     </script>
 </body>
 </html>
