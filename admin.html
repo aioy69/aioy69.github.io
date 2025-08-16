@@ -10,52 +10,39 @@
   <div class="min-h-screen flex flex-col items-center p-4">
     <header class="w-full max-w-4xl text-center py-8 mb-8">
       <h1 class="text-4xl font-extrabold text-white">Панель администратора</h1>
-      <p class="text-gray-400">Управление статьями (добавление, редактирование, удаление)</p>
     </header>
 
-    <main class="w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
-      <!-- Сообщения -->
-      <div id="status-message" class="text-center p-4 rounded-lg hidden"></div>
+    <!-- Форма входа -->
+    <main id="login-section" class="w-full max-w-sm bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-4">
+      <h2 class="text-xl font-bold text-center mb-4">Вход</h2>
+      <input id="login-email" type="email" placeholder="Email" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
+      <input id="login-password" type="password" placeholder="Пароль" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
+      <button id="login-btn" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 rounded">Войти</button>
+      <div id="login-error" class="text-red-400 text-center text-sm hidden"></div>
+    </main>
 
-      <!-- Форма -->
+    <!-- Админка -->
+    <main id="admin-section" class="hidden w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
       <form id="article-form" class="space-y-4">
         <input id="title" placeholder="Заголовок" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <textarea id="shortText" rows="2" placeholder="Краткое описание" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
         <textarea id="fullText" rows="4" placeholder="Полный текст" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
-        <input id="image" placeholder="URL картинки" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
+        <input id="image" placeholder="URL картинки или images/название.jpg" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
+        <p class="text-xs text-gray-400">Чтобы добавить файл, положи его в папку <code>images/</code> и укажи имя (например: <code>images/photo.jpg</code>).</p>
         <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 rounded">Добавить статью</button>
-        <button type="button" id="cancel-edit" class="hidden w-full bg-gray-600 text-white py-2 rounded">Отмена</button>
       </form>
 
-      <!-- Список статей -->
       <div>
         <h2 class="text-xl font-bold mb-4">Список статей</h2>
-        <div id="articles-list" class="space-y-2"></div>
+        <div id="articles-list"></div>
       </div>
     </main>
   </div>
 
-  <!-- Модальное окно -->
-  <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center">
-    <div class="bg-[#2c2c44] rounded-xl p-6 w-full max-w-lg">
-      <h3 id="modal-title" class="text-2xl font-bold text-white mb-2"></h3>
-      <p id="modal-short" class="text-gray-400 mb-2"></p>
-      <div id="modal-full" class="text-gray-300 mb-4"></div>
-      <div class="flex justify-end space-x-2">
-        <button id="edit-btn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Редактировать</button>
-        <button id="delete-btn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Удалить</button>
-        <button id="close-modal" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded">Закрыть</button>
-      </div>
-    </div>
-  </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-    import { 
-      getFirestore, collection, addDoc, onSnapshot, orderBy, query, 
-      serverTimestamp, doc, updateDoc, deleteDoc, getDoc 
-    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBn1F1ktpoTdp3J4eSW2rym1jKh4roelMM",
@@ -68,119 +55,67 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const auth = getAuth(app);
-    signInAnonymously(auth);
+    const db = getFirestore(app);
 
-    // DOM элементы
-    const form = document.getElementById('article-form');
-    const list = document.getElementById('articles-list');
-    const status = document.getElementById('status-message');
-    const submitBtn = document.getElementById('submit-btn');
-    const cancelBtn = document.getElementById('cancel-edit');
+    const loginSection = document.getElementById("login-section");
+    const adminSection = document.getElementById("admin-section");
+    const loginBtn = document.getElementById("login-btn");
+    const loginEmail = document.getElementById("login-email");
+    const loginPassword = document.getElementById("login-password");
+    const loginError = document.getElementById("login-error");
 
-    const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalShort = document.getElementById('modal-short');
-    const modalFull = document.getElementById('modal-full');
-    const editBtn = document.getElementById('edit-btn');
-    const deleteBtn = document.getElementById('delete-btn');
-    const closeModal = document.getElementById('close-modal');
+    loginBtn.addEventListener("click", async () => {
+      try {
+        await signInWithEmailAndPassword(auth, loginEmail.value, loginPassword.value);
+      } catch (err) {
+        loginError.textContent = "Ошибка: " + err.message;
+        loginError.classList.remove("hidden");
+      }
+    });
 
-    let editingId = null;
-    let currentId = null;
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginSection.classList.add("hidden");
+        adminSection.classList.remove("hidden");
+        loadArticles();
+      } else {
+        loginSection.classList.remove("hidden");
+        adminSection.classList.add("hidden");
+      }
+    });
 
-    // Добавление/обновление
-    form.addEventListener('submit', async (e) => {
+    const form = document.getElementById("article-form");
+    const list = document.getElementById("articles-list");
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
-        const data = {
+        await addDoc(collection(db, "articles"), {
           title: form.title.value,
           shortText: form.shortText.value,
           fullText: form.fullText.value,
           image: form.image.value || "images/default.jpg",
           createdAt: serverTimestamp()
-        };
-        if (editingId) {
-          await updateDoc(doc(db, "articles", editingId), data);
-          showStatus("Статья обновлена", "bg-blue-600");
-        } else {
-          await addDoc(collection(db, "articles"), data);
-          showStatus("Статья добавлена", "bg-green-600");
-        }
+        });
         form.reset();
-        submitBtn.textContent = "Добавить статью";
-        cancelBtn.classList.add("hidden");
-        editingId = null;
       } catch (err) {
-        showStatus("Ошибка: " + err.message, "bg-red-600");
+        alert("Ошибка: " + err.message);
       }
     });
 
-    cancelBtn.addEventListener("click", () => {
-      form.reset();
-      submitBtn.textContent = "Добавить статью";
-      cancelBtn.classList.add("hidden");
-      editingId = null;
-    });
-
-    // Загрузка статей
-    const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
-    onSnapshot(q, (snapshot) => {
-      list.innerHTML = "";
-      snapshot.forEach(docSnap => {
-        const a = docSnap.data();
-        const el = document.createElement("div");
-        el.className = "p-3 bg-[#1a1a2e] rounded cursor-pointer hover:bg-[#33334d]";
-        el.textContent = a.title;
-        el.addEventListener("click", () => openModal(docSnap.id, a));
-        list.appendChild(el);
+    function loadArticles() {
+      const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
+      onSnapshot(q, (snapshot) => {
+        list.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const a = docSnap.data();
+          const el = document.createElement("div");
+          el.className = "p-2 bg-[#1a1a2e] rounded mb-2";
+          el.textContent = a.title + " — " + (a.shortText || "");
+          list.appendChild(el);
+        });
       });
-    });
-
-    // Модалка
-    function openModal(id, article) {
-      currentId = id;
-      modalTitle.textContent = article.title;
-      modalShort.textContent = article.shortText;
-      modalFull.textContent = article.fullText;
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    }
-
-    closeModal.addEventListener("click", () => {
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    });
-
-    editBtn.addEventListener("click", async () => {
-      if (!currentId) return;
-      const snap = await getDoc(doc(db, "articles", currentId));
-      if (snap.exists()) {
-        const a = snap.data();
-        form.title.value = a.title;
-        form.shortText.value = a.shortText;
-        form.fullText.value = a.fullText;
-        form.image.value = a.image;
-        editingId = currentId;
-        submitBtn.textContent = "Сохранить изменения";
-        cancelBtn.classList.remove("hidden");
-      }
-      closeModal.click();
-    });
-
-    deleteBtn.addEventListener("click", async () => {
-      if (!currentId) return;
-      await deleteDoc(doc(db, "articles", currentId));
-      showStatus("Статья удалена", "bg-red-600");
-      closeModal.click();
-    });
-
-    function showStatus(msg, color) {
-      status.textContent = msg;
-      status.className = "p-2 text-white rounded " + color;
-      status.classList.remove("hidden");
-      setTimeout(() => status.classList.add("hidden"), 3000);
     }
   </script>
 </body>
