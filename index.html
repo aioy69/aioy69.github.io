@@ -1,181 +1,195 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <!-- Метатеги для адаптивного дизайна и кодировки -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Научпоп-журнал</title>
-    <!-- Подключение Tailwind CSS через CDN для современного дизайна -->
+    <title>Блог</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Подключение шрифта Inter от Google Fonts для чистого и современного внешнего вида -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Общие стили для всего документа, использующие шрифт Inter */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #1a1a2e;
             color: #e0e0e0;
         }
-        /* Стили для скроллбара, чтобы он соответствовал тёмной теме */
-        ::-webkit-scrollbar {
-            width: 8px;
+        .animated-bg {
+            background-image: linear-gradient(135deg, #1a1a2e, #2c2c44, #1a1a2e);
+            background-size: 200% 200%;
+            animation: gradient-animation 15s ease infinite;
         }
-        ::-webkit-scrollbar-track {
-            background: #2c2c44;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #5b5b7c;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #7a7ac2;
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
     </style>
 </head>
-<body class="antialiased leading-relaxed text-gray-200">
+<body class="antialiased leading-relaxed text-gray-200 animated-bg">
 
-    <!-- Главный контейнер сайта -->
     <div class="min-h-screen flex flex-col items-center p-4 md:p-8">
 
-        <!-- Секция заголовка -->
         <header class="w-full max-w-4xl text-center py-8 mb-8">
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-2 tracking-wide">
-                <span class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-transparent bg-clip-text">Мир Науки</span>
+                <span class="bg-gradient-to-r from-teal-500 via-blue-500 to-purple-500 text-transparent bg-clip-text">Добро пожаловать в мой блог</span>
             </h1>
-            <p class="text-lg md:text-xl text-gray-400">Путешествие по тайнам Вселенной</p>
-            <nav class="mt-4 flex justify-center space-x-4">
-                <a href="about.html" class="inline-block bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:from-purple-700 hover:to-indigo-700 transition duration-300 ease-in-out">
-                    О нас
-                </a>
-                <!-- Ссылка на новую страницу админ-панели -->
-                <a href="admin.html" class="inline-block bg-gradient-to-r from-gray-600 to-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:from-gray-700 hover:to-gray-900 transition duration-300 ease-in-out">
-                    Админ-панель
-                </a>
-            </nav>
+            <p class="text-lg md:text-xl text-gray-400">Последние статьи</p>
         </header>
 
-        <!-- Контейнер для карточек с контентом -->
-        <main id="articles-container" class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Здесь будут сгенерированы карточки статей -->
-            <div id="loading-message" class="col-span-1 md:col-span-2 lg:col-span-3 text-center text-lg text-gray-400">
-                Загрузка статей...
+        <main class="w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
+            <!-- Сообщение о статусе -->
+            <div id="status-message" class="text-center p-4 rounded-lg hidden"></div>
+
+            <!-- Список статей -->
+            <div>
+                <div id="articles-list-container" class="space-y-6">
+                    <!-- Статьи будут загружаться сюда -->
+                    <div id="loading-message" class="text-center text-lg text-gray-400">
+                        Загрузка статей...
+                    </div>
+                </div>
             </div>
+
+            <a href="admin-panel.html" class="mt-8 block text-center text-gray-400 hover:text-white transition-colors">
+                &rarr; Перейти в админ-панель
+            </a>
         </main>
-
-        <!-- Футер сайта -->
-        <footer class="w-full max-w-4xl text-center py-8 mt-16 text-gray-500">
-            <p>&copy; 2025. Все права защищены. Создано с любовью к науке. Артём Вадимович.</p>
-        </footer>
-
     </div>
 
-    <!-- Подключение нового скрипта, который будет генерировать статьи -->
-    <script type="module" src="articles.js"></script>
     <script type="module">
         // Импорт необходимых модулей Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getAuth,
+            signInWithCustomToken,
+            onAuthStateChanged,
+            signInAnonymously
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            onSnapshot,
+            query
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // *** ВНИМАНИЕ: Вот ваша конфигурация Firebase ***
-        const firebaseConfig = {
-            apiKey: "AIzaSyC74r3_QglvEA2UyGoBHo8U9tBL3G7MPo4",
-            authDomain: "mirproject-b9723.firebaseapp.com",
-            projectId: "mirproject-b9723",
-            storageBucket: "mirproject-b9723.firebasestorage.app",
-            messagingSenderId: "453058418449",
-            appId: "1:453058418449:web:69f5632a5ab9df77781eb0",
-            measurementId: "G-RV7BH5Y02S"
-        };
-        
-        // Глобальные переменные, предоставленные средой Canvas
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // DOM-элементы
+        const statusMessage = document.getElementById('status-message');
+        const articlesListContainer = document.getElementById('articles-list-container');
+        const loadingMessage = document.getElementById('loading-message');
 
         let db;
         let auth;
+        let appId;
+        let unsubscribe; // Переменная для хранения функции отмены подписки
 
-        const articlesContainer = document.getElementById('articles-container');
-        const loadingMessage = document.getElementById('loading-message');
-
-        async function initFirebase() {
-            // Добавлена проверка на наличие API-ключа перед инициализацией
-            if (!firebaseConfig.apiKey) {
-                loadingMessage.textContent = 'Ошибка: Конфигурация Firebase не найдена.';
-                return;
+        /**
+         * Усовершенствованная функция для ожидания, пока глобальные переменные Canvas не будут доступны.
+         * Использует механизм опроса вместо фиксированной задержки, что делает ее более надежной.
+         */
+        async function waitForFirebaseGlobals() {
+            let attempts = 0;
+            const maxAttempts = 50; // 50 * 100ms = 5 секунд
+            while (typeof __firebase_config === 'undefined' && attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
             }
+            if (typeof __firebase_config === 'undefined') {
+                throw new Error('Критическая ошибка: Не удалось загрузить конфигурацию приложения. Пожалуйста, обновите страницу.');
+            }
+            return {
+                firebaseConfig: JSON.parse(__firebase_config),
+                initialAuthToken: typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null,
+                appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
+            };
+        }
 
+        /**
+         * Инициализирует Firebase и настраивает прослушиватели данных.
+         */
+        async function initApp() {
             try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
+                showStatusMessage('Инициализация Firebase...', 'bg-blue-500');
+                const globals = await waitForFirebaseGlobals();
+                appId = globals.appId;
+                
+                const app = initializeApp(globals.firebaseConfig);
                 auth = getAuth(app);
+                db = getFirestore(app);
 
+                showStatusMessage('Аутентификация...', 'bg-blue-500');
                 // Аутентификация пользователя
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
+                if (globals.initialAuthToken) {
+                    await signInWithCustomToken(auth, globals.initialAuthToken);
                 } else {
                     await signInAnonymously(auth);
                 }
                 
+                // Слушатель состояния аутентификации
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         console.log("User is authenticated:", user.uid);
-                        fetchArticles();
+                        showStatusMessage('Успешная аутентификация. Загрузка данных...', 'bg-green-500');
+                        fetchAndDisplayArticles(); // Загружаем статьи
                     } else {
                         console.log("No user is authenticated.");
-                        loadingMessage.textContent = 'Ошибка: не удалось подключиться к базе данных. Пожалуйста, проверьте конфигурацию.';
+                        showStatusMessage('Вы не авторизованы. Пожалуйста, войдите в систему.', 'bg-red-500');
                     }
                 });
 
             } catch (e) {
-                console.error("Error during Firebase initialization or sign-in: ", e);
-                loadingMessage.textContent = `Ошибка инициализации: ${e.message}`;
+                console.error("Критическая ошибка инициализации: ", e);
+                showStatusMessage(`Критическая ошибка: ${e.message}`, 'bg-red-500');
             }
         }
 
-        function createCard(article) {
-            const card = document.createElement('div');
-            card.className = 'bg-[#2c2c44] rounded-xl shadow-2xl overflow-hidden transform hover:scale-105 transition-transform duration-300 ease-in-out';
-            card.innerHTML = `
-                <img src="${article.image}" alt="${article.title}" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h3 class="text-xl md:text-2xl font-bold text-white mb-2 leading-snug">${article.title}</h3>
-                    <p class="text-sm text-gray-400 leading-relaxed">${article.shortText}</p>
-                    <a href="#" class="mt-4 inline-block text-sm font-semibold text-purple-400 hover:text-purple-600 transition-colors">
-                        Подробнее &rarr;
-                    </a>
-                </div>
-            `;
-            return card;
-        }
-        
-        function fetchArticles() {
+        // Функция для отображения статей
+        function fetchAndDisplayArticles() {
+            // Если уже есть активный слушатель, отключаем его, чтобы избежать дублирования
+            if (unsubscribe) {
+                unsubscribe();
+            }
+
             const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
             const articlesQuery = query(collection(db, articlesCollectionPath));
 
-            onSnapshot(articlesQuery, (querySnapshot) => {
-                articlesContainer.innerHTML = '';
+            unsubscribe = onSnapshot(articlesQuery, (querySnapshot) => {
+                articlesListContainer.innerHTML = ''; // Очистка списка
+                loadingMessage.classList.add('hidden'); // Скрываем сообщение о загрузке
+
                 if (querySnapshot.empty) {
-                    loadingMessage.textContent = 'Пока нет добавленных статей.';
-                    articlesContainer.appendChild(loadingMessage);
+                    articlesListContainer.innerHTML = `<div class="text-center text-gray-400">Пока нет добавленных статей.</div>`;
                 } else {
-                    loadingMessage.remove();
                     querySnapshot.forEach((doc) => {
                         const article = doc.data();
-                        articlesContainer.appendChild(createCard(article));
+                        const articleId = doc.id;
+                        const articleElement = document.createElement('div');
+                        articleElement.className = 'bg-[#1a1a2e] p-6 rounded-lg shadow-md space-y-4';
+                        articleElement.innerHTML = `
+                            <h3 class="text-2xl font-bold text-white">${article.title}</h3>
+                            ${article.image ? `<img src="${article.image}" alt="Изображение для статьи" class="w-full h-48 object-cover rounded-md">` : ''}
+                            <p class="text-md text-gray-300">${article.shortText}</p>
+                            <!-- Здесь можно добавить кнопку "Читать далее", если у вас есть отдельная страница для каждой статьи -->
+                            <div class="text-right text-sm text-gray-500 mt-2">ID статьи: ${articleId}</div>
+                        `;
+                        articlesListContainer.appendChild(articleElement);
                     });
                 }
             }, (error) => {
                 console.error("Error fetching documents: ", error);
-                loadingMessage.textContent = `Ошибка при загрузке статей: ${error.message}`;
-                articlesContainer.appendChild(loadingMessage);
+                articlesListContainer.innerHTML = `<div class="text-center text-gray-400">Ошибка при загрузке статей: ${error.message}</div>`;
             });
         }
-        
-        document.addEventListener('DOMContentLoaded', initFirebase);
+
+        // Вспомогательная функция для отображения сообщений
+        function showStatusMessage(text, colorClass) {
+            statusMessage.textContent = text;
+            statusMessage.className = `text-center p-4 rounded-lg text-white ${colorClass}`;
+            statusMessage.classList.remove('hidden');
+        }
+
+        // Запускаем инициализацию приложения после загрузки DOM.
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
-
