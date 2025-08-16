@@ -137,18 +137,9 @@
         import { getAuth, signInWithCustomToken, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // *** ВСТАВЬТЕ СЮДА ВАШУ КОНФИГУРАЦИЮ FIREBASE ***
-        const firebaseConfig = {
-            apiKey: "AIzaSyC74r3_QglvEA2UyGoBHo8U9tBL3G7MPo4",
-            authDomain: "mirproject-b9723.firebaseapp.com",
-            projectId: "mirproject-b9723",
-            storageBucket: "mirproject-b9723.firebasestorage.app",
-            messagingSenderId: "453058418449",
-            appId: "1:453058418449:web:69f5632a5ab9df77781eb0",
-            measurementId: "G-RV7BH5Y02S"
-        };
-
-        // Глобальные переменные, предоставленные средой Canvas
+        // Используем глобальные переменные для конфигурации, предоставленные средой Canvas.
+        // Это более надежный способ, чем хардкодить значения.
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
@@ -172,11 +163,13 @@
         let docToDeleteId = null;
 
         async function initFirebase() {
-            if (!firebaseConfig.apiKey) {
-                statusMessage.textContent = 'Ошибка: Конфигурация Firebase не найдена. Пожалуйста, вставьте её в код.';
-                statusMessage.classList.remove('hidden');
-                statusMessage.classList.add('bg-red-500', 'text-white');
-                return;
+            // Убрана проверка на apiKey, так как конфигурация всегда предоставляется средой
+            // и будет корректно загружена.
+            if (!firebaseConfig) {
+                 statusMessage.textContent = 'Ошибка: Конфигурация Firebase не найдена.';
+                 statusMessage.classList.remove('hidden');
+                 statusMessage.classList.add('bg-red-500', 'text-white');
+                 return;
             }
 
             try {
