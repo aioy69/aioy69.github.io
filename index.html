@@ -73,6 +73,102 @@
 
     <!-- Подключение нового скрипта, который будет генерировать статьи -->
     <script type="module" src="articles.js"></script>
+    <script type="module">
+        // Импорт необходимых модулей Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
+        // Ваша конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC74r3_QglvEA2UyGoBHo8U9tBL3G7MPo4",
+            authDomain: "mirproject-b9723.firebaseapp.com",
+            projectId: "mirproject-b9723",
+            storageBucket: "mirproject-b9723.firebasestorage.app",
+            messagingSenderId: "453058418449",
+            appId: "1:453058418449:web:69f5632a5ab9df77781eb0",
+            measurementId: "G-RV7BH5Y02S"
+        };
+        
+        // Глобальные переменные, предоставленные средой Canvas
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        let db;
+        let auth;
+
+        const articlesContainer = document.getElementById('articles-container');
+        const loadingMessage = document.getElementById('loading-message');
+
+        async function initFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Аутентификация пользователя
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        console.log("User is authenticated:", user.uid);
+                        fetchArticles();
+                    } else {
+                        console.log("No user is authenticated.");
+                        loadingMessage.textContent = 'Ошибка: не удалось подключиться к базе данных. Пожалуйста, проверьте конфигурацию.';
+                    }
+                });
+
+            } catch (e) {
+                console.error("Error during Firebase initialization or sign-in: ", e);
+                loadingMessage.textContent = `Ошибка инициализации: ${e.message}`;
+            }
+        }
+
+        function createCard(article) {
+            const card = document.createElement('div');
+            card.className = 'bg-[#2c2c44] rounded-xl shadow-2xl overflow-hidden transform hover:scale-105 transition-transform duration-300 ease-in-out';
+            card.innerHTML = `
+                <img src="${article.image}" alt="${article.title}" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl md:text-2xl font-bold text-white mb-2 leading-snug">${article.title}</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">${article.shortText}</p>
+                    <a href="#" class="mt-4 inline-block text-sm font-semibold text-purple-400 hover:text-purple-600 transition-colors">
+                        Подробнее &rarr;
+                    </a>
+                </div>
+            `;
+            return card;
+        }
+        
+        function fetchArticles() {
+            const articlesCollectionPath = `/artifacts/${appId}/public/data/articles`;
+            const articlesQuery = query(collection(db, articlesCollectionPath));
+
+            onSnapshot(articlesQuery, (querySnapshot) => {
+                articlesContainer.innerHTML = '';
+                if (querySnapshot.empty) {
+                    loadingMessage.textContent = 'Пока нет добавленных статей.';
+                    articlesContainer.appendChild(loadingMessage);
+                } else {
+                    loadingMessage.remove();
+                    querySnapshot.forEach((doc) => {
+                        const article = doc.data();
+                        articlesContainer.appendChild(createCard(article));
+                    });
+                }
+            }, (error) => {
+                console.error("Error fetching documents: ", error);
+                loadingMessage.textContent = `Ошибка при загрузке статей: ${error.message}`;
+                articlesContainer.appendChild(loadingMessage);
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', initFirebase);
+    </script>
 </body>
 </html>
