@@ -9,25 +9,36 @@
 <body class="bg-[#1a1a2e] text-gray-200">
   <div class="min-h-screen flex flex-col items-center p-4">
     <header class="w-full max-w-4xl text-center py-8 mb-8">
-      <h1 class="text-4xl font-extrabold text-white">Панель администратора</h1>
+      <h1 class="text-4xl font-extrabold text-white">Админ-панель</h1>
     </header>
 
-    <main id="admin-section" class="w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
+    <!-- 🔹 Форма входа -->
+    <main id="login-section" class="w-full max-w-sm bg-[#2c2c44] rounded-xl shadow-2xl p-6 space-y-4">
+      <input id="login-email" type="email" placeholder="Email" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
+      <input id="login-password" type="password" placeholder="Пароль" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
+      <button id="login-btn" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 rounded">Войти</button>
+      <p id="login-error" class="text-red-400 text-sm"></p>
+    </main>
+
+    <!-- 🔹 Панель администратора -->
+    <main id="admin-section" class="hidden w-full max-w-2xl bg-[#2c2c44] rounded-xl shadow-2xl p-8 space-y-8">
       <form id="article-form" class="space-y-4">
         <input id="title" placeholder="Заголовок" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <textarea id="shortText" rows="2" placeholder="Краткое описание" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
         <textarea id="fullText" rows="4" placeholder="Полный текст" required class="w-full p-2 rounded bg-[#1a1a2e] text-white"></textarea>
         <input id="image" placeholder="URL картинки или images/название.jpg" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
         <input id="category" placeholder="Категория (например: Космос)" class="w-full p-2 rounded bg-[#1a1a2e] text-white"/>
-        <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 rounded">Добавить статью</button>
+        <button type="submit" id="submit-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 rounded">Добавить статью</button>
       </form>
     </main>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
+    // 🔹 Конфиг Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBn1F1ktpoTdp3J4eSW2rym1jKh4roelMM",
       authDomain: "admin-mir.firebaseapp.com",
@@ -40,9 +51,43 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
+    const loginSection = document.getElementById("login-section");
+    const adminSection = document.getElementById("admin-section");
+    const loginBtn = document.getElementById("login-btn");
+    const loginError = document.getElementById("login-error");
     const form = document.getElementById("article-form");
 
+    // 🔹 Авторизация
+    loginBtn.addEventListener("click", async () => {
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        loginError.textContent = "Ошибка входа: " + err.message;
+      }
+    });
+
+    // 🔹 Проверка пользователя
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (user.email === "zak2067@gmail.com") {
+          loginSection.classList.add("hidden");
+          adminSection.classList.remove("hidden");
+        } else {
+          alert("У вас нет доступа!");
+          signOut(auth);
+          window.location.href = "index.html";
+        }
+      } else {
+        loginSection.classList.remove("hidden");
+        adminSection.classList.add("hidden");
+      }
+    });
+
+    // 🔹 Добавление статьи
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
