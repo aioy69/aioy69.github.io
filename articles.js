@@ -16,6 +16,28 @@ const db = getFirestore(app);
 
 const articlesContainer = document.getElementById('articles-container');
 const loadingMessage = document.getElementById('loading-message');
+const searchInput = document.getElementById('search-input');
+const filterBtns = document.querySelectorAll('.filter-btn');
+
+let allArticles = [];
+let currentCategory = "all";
+let searchQuery = "";
+
+function renderArticles() {
+    articlesContainer.innerHTML = '';
+    let filtered = allArticles.filter(a => {
+        let matchCategory = (currentCategory === "all" || a.category === currentCategory);
+        let matchSearch = a.title.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchCategory && matchSearch;
+    });
+    if (filtered.length === 0) {
+        articlesContainer.innerHTML = '<p class="col-span-3 text-center text-gray-400">Нет статей по запросу.</p>';
+        return;
+    }
+    filtered.forEach(article => {
+        articlesContainer.appendChild(createCard(article));
+    });
+}
 
 function createCard(article) {
     const card = document.createElement('div');
@@ -28,6 +50,10 @@ function createCard(article) {
 
     const textContainer = document.createElement('div');
     textContainer.className = "p-6";
+
+    const category = document.createElement('span');
+    category.className = "inline-block bg-purple-600 text-xs px-2 py-1 rounded-full mb-2";
+    category.textContent = article.category || "Без категории";
 
     const title = document.createElement('h2');
     title.className = "text-2xl font-bold text-white mb-2";
@@ -42,9 +68,10 @@ function createCard(article) {
     button.textContent = "Читать далее";
 
     const hiddenContent = document.createElement('div');
-    hiddenContent.className = "hidden mt-4 text-gray-300";
-    hiddenContent.innerHTML = (article.fullText || "").split("\n").map(p => `<p class='mb-2'>${p}</p>`).join("");
+    hiddenContent.className = "hidden mt-4 text-gray-300 max-w-3xl leading-relaxed";
+    hiddenContent.innerHTML = (article.fullText || "").split("\n").map(p => `<p class='mb-4'>${p}</p>`).join("");
 
+    textContainer.appendChild(category);
     textContainer.appendChild(title);
     textContainer.appendChild(shortText);
     textContainer.appendChild(button);
@@ -65,18 +92,27 @@ function loadArticles() {
     const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
     onSnapshot(q, (snapshot) => {
         if (loadingMessage) loadingMessage.style.display = 'none';
-        articlesContainer.innerHTML = '';
-        if (snapshot.empty) {
-            articlesContainer.innerHTML = '<p class="col-span-3 text-center text-gray-400">Пока нет статей.</p>';
-            return;
-        }
+        allArticles = [];
         snapshot.forEach((doc) => {
-            const article = doc.data();
-            articlesContainer.appendChild(createCard(article));
+            allArticles.push(doc.data());
         });
+        renderArticles();
     }, (error) => {
         articlesContainer.innerHTML = '<p class="col-span-3 text-center text-red-400">Ошибка загрузки статей.</p>';
     });
 }
 
 document.addEventListener('DOMContentLoaded', loadArticles);
+
+// Обработчики поиска и фильтров
+searchInput.addEventListener("input", (e) => {
+    searchQuery = e.target.value;
+    renderArticles();
+});
+
+filterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+        currentCategory = btn.dataset.category;
+        renderArticles();
+    });
+});
