@@ -161,6 +161,24 @@
     }
     document.addEventListener('DOMContentLoaded', createStars);
 
+    // 📱 Мобильное меню
+    const menuBtn = document.getElementById("menu-btn");
+    const menuIcon = document.getElementById("menu-icon");
+    const mobileMenu = document.getElementById("mobile-menu");
+    let menuOpen = false;
+
+    menuBtn.addEventListener("click", () => {
+      if (!menuOpen) {
+        mobileMenu.classList.remove("hidden");
+        menuIcon.textContent = "✖";
+        menuOpen = true;
+      } else {
+        mobileMenu.classList.add("hidden");
+        menuIcon.textContent = "☰";
+        menuOpen = false;
+      }
+    });
+
     // Предсказания
     const predictions = ["Сегодня тебя ждет приятный сюрприз.","Новые идеи принесут успех.","Скоро придет важная новость.","Ты движешься в правильном направлении.","Верь в себя — это ключ ко всему."];
     const fortuneBtn=document.getElementById("fortune-btn"),fortuneModal=document.getElementById("fortune-modal"),fortuneText=document.getElementById("fortune-text"),closeFortune=document.getElementById("close-fortune"),shareFortune=document.getElementById("share-fortune");
