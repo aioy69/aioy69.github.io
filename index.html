@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mir Articles</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
   <style>
     /* 🔹 Анимация underline для меню на ПК */
     .nav-link {
@@ -84,6 +85,32 @@
       transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
     }
+    
+    /* Анимация загрузки */
+    .loading-pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    /* Категории */
+    .category-chip {
+      display: inline-block;
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    .category-chip:hover {
+      background: rgba(139, 92, 246, 0.3);
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
@@ -127,13 +154,21 @@
   <!-- Контент -->
   <main class="min-h-screen max-w-5xl mx-auto p-6 pt-32">
     <h2 class="text-3xl font-bold mb-6 text-center text-white">Последние статьи</h2>
+    
+    <!-- Фильтры категорий -->
+    <div class="flex flex-wrap justify-center mb-8">
+      <button class="category-chip active" data-category="all">Все</button>
+      <button class="category-chip" data-category="cosmos">Космос</button>
+      <button class="category-chip" data-category="science">Наука</button>
+      <button class="category-chip" data-category="technology">Технологии</button>
+      <button class="category-chip" data-category="biology">Биология</button>
+    </div>
 
     <!-- 🔹 Контейнер для статей -->
     <section id="articles-container" class="grid gap-6 md:grid-cols-2">
-      <div class="glass-card p-6">
-        <h3 class="text-2xl font-bold text-white">Пример статьи</h3>
-        <p class="text-gray-300 mt-2">Это пример оформления карточки статьи в стиле «стекла».</p>
-      </div>
+      <!-- Карточки статей будут загружены сюда -->
+      <div class="glass-card p-6 loading-pulse" style="height: 300px;"></div>
+      <div class="glass-card p-6 loading-pulse" style="height: 300px;"></div>
     </section>
   </main>
 
@@ -153,9 +188,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Подключаем логику статей -->
-  <script type="module" src="articles.js"></script>
 
   <!-- JS для меню, предсказаний и звёзд -->
   <script>
@@ -266,5 +298,107 @@
       }
     });
   </script>
+  
+  <!-- Скрипт для загрузки статей -->
+  <script type="module">
+    // Конфигурация Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyC74r3_QglvEA2UyGoBHo8U9tBL3G7MPo4",
+      authDomain: "mirproject-b9723.firebaseapp.com",
+      projectId: "mirproject-b9723",
+      storageBucket: "mirproject-b9723.appspot.com",
+      messagingSenderId: "453058418449",
+      appId: "1:453058418449:web:69f5632a5ab9df77781eb0",
+      measurementId: "G-RV7BH5Y02S"
+    };
+
+    // Инициализация Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    // Загрузка статей
+    const articlesContainer = document.getElementById('articles-container');
+    
+    // Функция для создания карточки статьи
+    function createArticleCard(article) {
+      const card = document.createElement('div');
+      card.className = 'glass-card p-6';
+      card.innerHTML = `
+        <div class="flex justify-between items-start mb-4">
+          <span class="category-chip">${article.category || 'Наука'}</span>
+          <span class="text-sm text-gray-400">${new Date(article.createdAt?.toDate()).toLocaleDateString()}</span>
+        </div>
+        <img src="${article.image}" alt="${article.title}" class="w-full h-48 object-cover rounded-lg mb-4">
+        <h3 class="text-2xl font-bold text-white mb-3">${article.title}</h3>
+        <p class="text-gray-300 mb-4">${article.shortText}</p>
+        <div class="flex justify-between items-center">
+          <a href="#" class="text-purple-400 hover:text-purple-300 font-medium">Читать далее &rarr;</a>
+          <div class="flex space-x-2">
+            <button class="text-gray-400 hover:text-purple-400">
+              <i class="far fa-heart"></i>
+            </button>
+            <button class="text-gray-400 hover:text-purple-400">
+              <i class="far fa-bookmark"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+    
+    // Загрузка статей из Firestore
+    async function loadArticles() {
+      try {
+        // Показываем состояние загрузки
+        articlesContainer.innerHTML = `
+          <div class="glass-card p-6 loading-pulse" style="height: 300px;"></div>
+          <div class="glass-card p-6 loading-pulse" style="height: 300px;"></div>
+        `;
+        
+        // Получаем статьи из Firestore
+        const querySnapshot = await db.collection("articles").get();
+        
+        // Очищаем контейнер
+        articlesContainer.innerHTML = '';
+        
+        if (querySnapshot.empty) {
+          articlesContainer.innerHTML = `
+            <div class="col-span-2 text-center py-12">
+              <i class="fas fa-newspaper text-5xl text-purple-500 mb-4"></i>
+              <p class="text-xl text-gray-400">Статей пока нет</p>
+              <p class="mt-2 text-gray-500">Скоро здесь появятся новые научные материалы</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Добавляем статьи в контейнер
+        querySnapshot.forEach((doc) => {
+          const article = doc.data();
+          articlesContainer.appendChild(createArticleCard(article));
+        });
+        
+      } catch (error) {
+        console.error("Ошибка загрузки статей:", error);
+        articlesContainer.innerHTML = `
+          <div class="col-span-2 text-center py-12">
+            <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+            <p class="text-xl text-gray-400">Ошибка загрузки</p>
+            <p class="mt-2 text-gray-500">Пожалуйста, проверьте подключение к интернету</p>
+            <button class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+              Попробовать снова
+            </button>
+          </div>
+        `;
+      }
+    }
+    
+    // Загрузка статей при открытии страницы
+    document.addEventListener('DOMContentLoaded', loadArticles);
+  </script>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </body>
 </html>
