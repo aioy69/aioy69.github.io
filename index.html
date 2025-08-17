@@ -8,7 +8,7 @@
   <style>
     /* 🔹 Фон со звёздами */
     body {
-      background: linear-gradient(135deg, #0f172a 0%, #1a1a2e 100%);
+      background: radial-gradient(circle at top left, #0f172a 0%, #1a1a2e 100%), #0f172a;
       color: #e2e8f0;
       overflow-x: hidden;
       position: relative;
@@ -67,9 +67,9 @@
 
     /* 🔹 карточки статей с эффектом blur */
     .article-card {
-      background: rgba(30, 41, 59, 0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(30, 41, 59, 0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(139, 92, 246, 0.25);
       border-radius: 16px;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -81,9 +81,9 @@
 
     /* 🔹 модалка статей / предсказаний */
     .article-modal {
-      background: rgba(30, 41, 59, 0.35);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(139, 92, 246, 0.3);
       border-radius: 20px;
     }
