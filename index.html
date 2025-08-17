@@ -6,21 +6,12 @@
   <title>Mir Articles</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 🔹 Фон */
     body {
       background: #0f172a;
       background-image: radial-gradient(circle at top, #0f172a, #1a1a2e);
       color: #e2e8f0;
       overflow-x: hidden;
-      position: relative;
       min-height: 100vh;
-    }
-    /* Доп. градиент под blur */
-    .bg-blur-layer {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, #0f172a, #1a1a2e);
-      z-index: -2;
     }
     .stars {
       position: fixed;
@@ -36,71 +27,68 @@
       border-radius: 50%;
       animation: twinkle 4s infinite ease-in-out;
     }
-    @keyframes twinkle {
-      0%,100% { opacity: 0.2; }
-      50% { opacity: 1; }
-    }
+    @keyframes twinkle { 0%,100% { opacity: 0.2; } 50% { opacity: 1; } }
 
-    /* 🔹 underline-анимация для меню */
-    .nav-link {
-      position: relative;
-      transition: color 0.3s ease;
-    }
+    .nav-link { position: relative; transition: color 0.3s ease; }
     .nav-link::after {
       content: "";
       position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
+      bottom: -2px; left: 0;
+      width: 0; height: 2px;
       background: #a855f7;
       transition: width 0.3s ease;
     }
     .nav-link:hover::after { width: 100%; }
 
-    /* 🔹 карточки статей с эффектом blur */
+    /* Карточки */
     .article-card {
-      background: rgba(30, 41, 59, 0.15);
-      backdrop-filter: blur(28px) saturate(140%);
-      -webkit-backdrop-filter: blur(28px) saturate(140%);
-      background-clip: padding-box;
-      border: 1px solid rgba(139, 92, 246, 0.28);
+      background: rgba(30,41,59,0.2);
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      border: 1px solid rgba(139,92,246,0.3);
       border-radius: 16px;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      will-change: backdrop-filter;
     }
-    .article-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
-    }
+    .article-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(139,92,246,0.35); }
 
-    /* 🔹 модалка статей / предсказаний */
-    .article-modal {
-      background: rgba(30, 41, 59, 0.15);
-      backdrop-filter: blur(32px) saturate(150%);
-      -webkit-backdrop-filter: blur(32px) saturate(150%);
-      background-clip: padding-box;
-      border: 1px solid rgba(139, 92, 246, 0.32);
+    /* Модалка статей */
+    #article-modal {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(0,0,0,0.5);
+    }
+    .article-modal-box {
+      background: rgba(30,41,59,0.25);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(139,92,246,0.35);
       border-radius: 20px;
-      will-change: backdrop-filter;
+      padding: 2rem;
+      max-width: 700px;
+      width: 90%;
     }
 
-    /* 📱 прозрачнее на телефоне */
-    @media (max-width: 768px) {
-      #fortune-btn { opacity: 0.6; }
-    }
-
-    /* overlay blur for modal (works on iOS Safari) */
+    /* Модалка предсказаний */
     #fortune-modal {
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      background-color: rgba(0, 0, 0, 0.3);
+      background: rgba(0,0,0,0.5);
     }
+    .fortune-box {
+      background: rgba(30,41,59,0.25);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(139,92,246,0.35);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    @media (max-width: 768px) { #fortune-btn { opacity: 0.6; } }
   </style>
 </head>
-<body class="antialiased leading-relaxed text-gray-200 relative">
-  <!-- 🌌 Фон -->
-  <div class="bg-blur-layer"></div>
+<body class="antialiased leading-relaxed text-gray-200">
   <div class="stars" id="stars-container"></div>
 
   <!-- Шапка -->
@@ -108,29 +96,17 @@
     <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
       <div class="flex items-center gap-3">
         <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
-        <!-- 🔮 кнопка предсказаний в шапке -->
-        <button id="fortune-btn"
-          class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-2 rounded-full shadow-md hover:scale-105 transition">
-          🔮
-        </button>
+        <button id="fortune-btn" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-2 rounded-full shadow-md hover:scale-105 transition">🔮</button>
       </div>
-
-      <!-- Десктопное меню -->
       <nav class="hidden md:flex space-x-6">
         <a href="index.html" class="nav-link hover:text-purple-400">Главная</a>
         <a href="about.html" class="nav-link hover:text-purple-400">О проекте</a>
         <a href="admin.html" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg transition">Вход</a>
       </nav>
-
-      <!-- Мобильное меню -->
       <div class="md:hidden">
-        <button id="menu-btn" class="text-white text-2xl focus:outline-none">
-          <span id="menu-icon" class="menu-icon">☰</span>
-        </button>
+        <button id="menu-btn" class="text-white text-2xl focus:outline-none"><span id="menu-icon">☰</span></button>
       </div>
     </div>
-
-    <!-- Выпадающее меню -->
     <nav id="mobile-menu" class="hidden flex-col bg-[#1a1a2e]/80 backdrop-blur-md md:hidden px-4 pb-4 space-y-2">
       <a href="index.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">Главная</a>
       <a href="about.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">О проекте</a>
@@ -138,26 +114,28 @@
     </nav>
   </header>
 
-  <!-- Контент -->
   <main class="min-h-screen max-w-5xl mx-auto p-6 pt-32">
     <h2 class="text-3xl font-bold mb-6 text-center text-white">Последние статьи</h2>
-
-    <!-- 🔹 Контейнер для статей -->
     <section id="articles-container" class="grid gap-6 md:grid-cols-2">
-      <div class="article-card p-6">
-        <h3 class="text-xl font-bold mb-2 text-white">Загрузка статей...</h3>
-      </div>
+      <div class="article-card p-6"><h3 class="text-xl font-bold mb-2 text-white">Загрузка статей...</h3></div>
     </section>
   </main>
 
-  <!-- Подвал -->
-  <footer class="bg-[#111122]/80 backdrop-blur-md py-6 mt-12 text-center text-gray-400 text-sm">
-    © 2025 Mir Articles · Все права защищены
-  </footer>
+  <footer class="bg-[#111122]/80 backdrop-blur-md py-6 mt-12 text-center text-gray-400 text-sm">© 2025 Mir Articles · Все права защищены</footer>
 
-  <!-- 🔮 Модалка предсказаний -->
+  <!-- Модалка статей -->
+  <div id="article-modal" class="fixed inset-0 flex items-center justify-center hidden z-50">
+    <div class="article-modal-box">
+      <h2 id="article-title" class="text-2xl font-bold mb-4"></h2>
+      <p id="article-content" class="mb-4"></p>
+      <p id="article-author" class="text-sm italic text-gray-400 mb-4"></p>
+      <button id="close-article" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Модалка предсказаний -->
   <div id="fortune-modal" class="fixed inset-0 flex items-center justify-center hidden z-50">
-    <div class="article-modal p-8 max-w-md w-11/12 transform scale-90 opacity-0 transition-all duration-300">
+    <div class="fortune-box transform scale-90 opacity-0 transition-all duration-300">
       <h2 class="text-xl font-bold mb-4">✨ Ваше предсказание:</h2>
       <p id="fortune-text" class="italic text-lg mb-6"></p>
       <div class="flex gap-3">
@@ -167,110 +145,30 @@
     </div>
   </div>
 
-  <!-- Подключаем статьи -->
   <script type="module" src="articles.js"></script>
-
-  <!-- JS: меню + звёзды + предсказания -->
   <script>
-    // 🌌 Звёзды
     function createStars() {
-      const container = document.getElementById('stars-container');
+      const c = document.getElementById('stars-container');
       for (let i = 0; i < 120; i++) {
-        const star = document.createElement('div');
-        star.classList.add('star');
+        const s = document.createElement('div');
+        s.classList.add('star');
         const size = Math.random() * 2 + 1;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.left = `${Math.random() * 100}%`;
-        star.style.top = `${Math.random() * 100}%`;
-        star.style.animationDelay = `${Math.random() * 4}s`;
-        container.appendChild(star);
+        s.style.width = `${size}px`; s.style.height = `${size}px`;
+        s.style.left = `${Math.random() * 100}%`; s.style.top = `${Math.random() * 100}%`;
+        s.style.animationDelay = `${Math.random() * 4}s`;
+        c.appendChild(s);
       }
     }
     document.addEventListener('DOMContentLoaded', createStars);
 
-    // 📱 Мобильное меню
-    const menuBtn = document.getElementById("menu-btn");
-    const menuIcon = document.getElementById("menu-icon");
-    const mobileMenu = document.getElementById("mobile-menu");
-    let menuOpen = false;
-    menuBtn.addEventListener("click", () => {
-      if (!menuOpen) {
-        mobileMenu.classList.remove("hidden");
-        setTimeout(() => mobileMenu.classList.add("show"), 10);
-        menuIcon.textContent = "✖";
-        menuIcon.classList.add("rotate");
-        menuOpen = true;
-      } else {
-        mobileMenu.classList.remove("show");
-        setTimeout(() => mobileMenu.classList.add("hidden"), 300);
-        menuIcon.textContent = "☰";
-        menuIcon.classList.remove("rotate");
-        menuOpen = false;
-      }
-    });
-
-    // 🔮 Предсказания
-    const predictions = [
-      "Сегодня тебя ждет приятный сюрприз.",
-      "Новые идеи принесут успех.",
-      "Скоро придет важная новость.",
-      "Ты движешься в правильном направлении.",
-      "Верь в себя — это ключ ко всему."
-    ];
-    const fortuneBtn = document.getElementById("fortune-btn");
-    const fortuneModal = document.getElementById("fortune-modal");
-    const fortuneText = document.getElementById("fortune-text");
-    const closeFortune = document.getElementById("close-fortune");
-    const shareFortune = document.getElementById("share-fortune");
-    let currentPrediction = "";
-
-    function typeWriter(text, element, speed = 40) {
-      element.textContent = "";
-      let i = 0;
-      (function typing() {
-        if (i < text.length) {
-          element.textContent += text.charAt(i);
-          i++;
-          setTimeout(typing, speed);
-        }
-      })();
-    }
-
-    fortuneBtn.addEventListener("click", () => {
-      currentPrediction = predictions[Math.floor(Math.random() * predictions.length)];
-      fortuneModal.classList.remove("hidden");
-      setTimeout(() => {
-        const box = fortuneModal.children[0];
-        box.classList.remove("scale-90", "opacity-0");
-        box.classList.add("scale-100", "opacity-100");
-        typeWriter(currentPrediction, fortuneText, 40);
-      }, 10);
-    });
-
-    closeFortune.addEventListener("click", () => {
-      const box = fortuneModal.children[0];
-      box.classList.add("scale-90", "opacity-0");
-      setTimeout(() => fortuneModal.classList.add("hidden"), 300);
-    });
-
-    shareFortune.addEventListener("click", () => {
-      const text = `✨ Моё предсказание: "${currentPrediction}" — узнай своё на Mir Articles! 🔮`;
-      if (navigator.share) {
-        navigator.share({ title: "Mir Articles", text, url: window.location.href });
-      } else {
-        navigator.clipboard.writeText(text).then(() => alert("Предсказание скопировано 📋"));
-      }
-    });
-
-    // 🛠 fallback blur
-    if (!CSS.supports('backdrop-filter', 'blur(1px)')) {
-      document.querySelectorAll('.article-card, .article-modal')
-        .forEach(el => {
-          el.style.background = "rgba(30, 41, 59, 0.85)";
-          el.style.filter = "brightness(1.1)";
-        });
-    }
+    // Предсказания
+    const predictions = ["Сегодня тебя ждет приятный сюрприз.","Новые идеи принесут успех.","Скоро придет важная новость.","Ты движешься в правильном направлении.","Верь в себя — это ключ ко всему."];
+    const fortuneBtn=document.getElementById("fortune-btn"),fortuneModal=document.getElementById("fortune-modal"),fortuneText=document.getElementById("fortune-text"),closeFortune=document.getElementById("close-fortune"),shareFortune=document.getElementById("share-fortune");
+    let currentPrediction="";
+    function typeWriter(t,e,s=40){e.textContent="";let i=0;(function n(){i<t.length?(e.textContent+=t.charAt(i),i++,setTimeout(n,s)):0})()} 
+    fortuneBtn.addEventListener("click",()=>{currentPrediction=predictions[Math.floor(Math.random()*predictions.length)],fortuneModal.classList.remove("hidden");setTimeout(()=>{const e=fortuneModal.children[0];e.classList.remove("scale-90","opacity-0"),e.classList.add("scale-100","opacity-100"),typeWriter(currentPrediction,fortuneText,40)},10)});
+    closeFortune.addEventListener("click",()=>{const e=fortuneModal.children[0];e.classList.add("scale-90","opacity-0"),setTimeout(()=>fortuneModal.classList.add("hidden"),300)});
+    shareFortune.addEventListener("click",()=>{const t=`✨ Моё предсказание: \"${currentPrediction}\" — узнай своё на Mir Articles! 🔮`;navigator.share?navigator.share({title:"Mir Articles",text:t,url:window.location.href}):navigator.clipboard.writeText(t).then(()=>alert("Предсказание скопировано 📋"))});
   </script>
 </body>
 </html>
