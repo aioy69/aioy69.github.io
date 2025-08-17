@@ -5,6 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mir Articles</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 🔹 Анимация underline для меню на ПК */
+    .nav-link {
+      position: relative;
+      transition: color 0.3s ease;
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #a855f7;
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* 🔹 Анимация выпадания мобильного меню */
+    #mobile-menu {
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+    #mobile-menu.show {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+
+    /* 🔹 Анимация смены иконки меню */
+    .menu-icon {
+      transition: transform 0.3s ease;
+    }
+    .rotate {
+      transform: rotate(180deg);
+    }
+  </style>
 </head>
 <body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
   <!-- Шапка -->
@@ -13,15 +53,17 @@
       <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
 
       <!-- Десктопное меню -->
-      <nav class="hidden md:flex space-x-4">
-        <a href="index.html" class="hover:text-purple-400">Главная</a>
-        <a href="about.html" class="hover:text-purple-400">О проекте</a>
-        <a href="admin.html" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg">Вход</a>
+      <nav class="hidden md:flex space-x-6">
+        <a href="index.html" class="nav-link hover:text-purple-400">Главная</a>
+        <a href="about.html" class="nav-link hover:text-purple-400">О проекте</a>
+        <a href="admin.html" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg transition duration-300 transform hover:scale-105">Вход</a>
       </nav>
 
       <!-- Мобильное меню -->
       <div class="md:hidden">
-        <button id="menu-btn" class="text-white text-2xl">☰</button>
+        <button id="menu-btn" class="text-white text-2xl focus:outline-none">
+          <span id="menu-icon" class="menu-icon">☰</span>
+        </button>
       </div>
     </div>
 
@@ -29,7 +71,7 @@
     <nav id="mobile-menu" class="hidden flex-col bg-[#1a1a2e] md:hidden px-4 pb-4 space-y-2">
       <a href="index.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">Главная</a>
       <a href="about.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">О проекте</a>
-      <a href="admin.html" class="block py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center">Вход</a>
+      <a href="admin.html" class="block py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center transition duration-300 transform hover:scale-105">Вход</a>
     </nav>
   </header>
 
@@ -54,9 +96,25 @@
   <!-- JS для мобильного меню -->
   <script>
     const menuBtn = document.getElementById("menu-btn");
+    const menuIcon = document.getElementById("menu-icon");
     const mobileMenu = document.getElementById("mobile-menu");
+
+    let menuOpen = false;
+
     menuBtn.addEventListener("click", () => {
-      mobileMenu.classList.toggle("hidden");
+      if (!menuOpen) {
+        mobileMenu.classList.remove("hidden");
+        setTimeout(() => mobileMenu.classList.add("show"), 10);
+        menuIcon.textContent = "✖";
+        menuIcon.classList.add("rotate");
+        menuOpen = true;
+      } else {
+        mobileMenu.classList.remove("show");
+        setTimeout(() => mobileMenu.classList.add("hidden"), 300);
+        menuIcon.textContent = "☰";
+        menuIcon.classList.remove("rotate");
+        menuOpen = false;
+      }
     });
   </script>
 </body>
