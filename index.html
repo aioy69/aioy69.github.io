@@ -44,13 +44,39 @@
     .rotate {
       transform: rotate(180deg);
     }
+
+    /* 📱 На телефоне кнопка предсказаний прозрачнее */
+    @media (max-width: 768px) {
+      #fortune-btn {
+        opacity: 0.6;
+      }
+    }
+
+    /* 🌌 Слой со звёздами */
+    #stars-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    main, footer { position: relative; z-index: 10; }
   </style>
 </head>
 <body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
+  <!-- 🌌 Фон со звёздами -->
+  <canvas id="stars-canvas"></canvas>
+
   <!-- Шапка -->
   <header class="w-full bg-[#111122] shadow-md fixed top-0 left-0 z-40">
     <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
-      <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
+      <!-- Лого + кнопка предсказаний -->
+      <div class="flex items-center gap-2">
+        <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
+        <button id="fortune-btn" 
+          class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-2 rounded-full shadow-md transition transform hover:scale-110 hover:opacity-100">
+          🔮
+        </button>
+      </div>
 
       <!-- Десктопное меню -->
       <nav class="hidden md:flex space-x-6">
@@ -74,13 +100,6 @@
       <a href="admin.html" class="block py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center transition duration-300 transform hover:scale-105">Вход</a>
     </nav>
   </header>
-
-  <!-- 🔮 Плавающая кнопка -->
-  <button id="fortune-btn" 
-    class="fixed top-24 right-4 bg-gradient-to-r from-purple-600 to-pink-600 
-    text-white p-4 rounded-full shadow-xl transition transform hover:scale-110 z-50">
-    🔮
-  </button>
 
   <!-- Контент -->
   <main class="min-h-screen max-w-5xl mx-auto p-6 pt-32">
@@ -112,9 +131,9 @@
   <!-- Подключаем логику статей -->
   <script type="module" src="articles.js"></script>
 
-  <!-- JS для меню + предсказаний -->
+  <!-- JS для меню + предсказаний + звёзд -->
   <script>
-    // Мобильное меню
+    /* ========== Мобильное меню ========== */
     const menuBtn = document.getElementById("menu-btn");
     const menuIcon = document.getElementById("menu-icon");
     const mobileMenu = document.getElementById("mobile-menu");
@@ -136,7 +155,7 @@
       }
     });
 
-    // 🔮 Предсказания
+    /* ========== Предсказания ========== */
     const predictions = [
       "Сегодня тебя ждет приятный сюрприз.",
       "Новые идеи принесут успех.",
@@ -211,6 +230,97 @@
         });
       }
     });
+
+    /* ========== Плавающие звёзды ========== */
+    (function initStars() {
+      const canvas = document.getElementById('stars-canvas');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      let width = 0, height = 0, dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+      const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function makeStars() {
+        stars = [];
+        const baseCount = Math.floor((width * height) / 18000);
+        const mobile = width < 768;
+        const count = Math.max(40, Math.min(220, mobile ? Math.floor(baseCount * 0.6) : baseCount));
+
+        for (let i = 0; i < count; i++) {
+          stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: Math.random() * 1.4 + 0.3,
+            a: Math.random() * 0.6 + 0.2,
+            tw: Math.random() * 0.6 + 0.2,
+            spx: (Math.random() - 0.5) * 0.06,
+            spy: (Math.random() - 0.5) * 0.06,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+      }
+
+      function drawStar(s) {
+        const alpha = s.a + Math.sin(s.phase) * s.tw * 0.6;
+        ctx.globalAlpha = Math.max(0.05, Math.min(0.9, alpha));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(200, 180, 255, 1)';
+        ctx.fill();
+      }
+
+      let rafId = null;
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+        for (const s of stars) {
+          s.phase += 0.02;
+          s.x += s.spx;
+          s.y += s.spy;
+          if (s.x < -2) s.x = width + 2;
+          if (s.x > width + 2) s.x = -2;
+          if (s.y < -2) s.y = height + 2;
+          if (s.y > height + 2) s.y = -2;
+          drawStar(s);
+        }
+        rafId = requestAnimationFrame(animate);
+      }
+
+      resize();
+      makeStars();
+
+      if (prefersReduced) {
+        ctx.clearRect(0, 0, width, height);
+        for (const s of stars) drawStar(s);
+      } else {
+        animate();
+      }
+
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          resize();
+          makeStars();
+          if (prefersReduced) {
+            ctx.clearRect(0, 0, width, height);
+            for (const s of stars) drawStar(s);
+          }
+        }, 150);
+      });
+
+      window.addEventListener('beforeunload', () => {
+        if (rafId) cancelAnimationFrame(rafId);
+      });
+    })();
   </script>
 </body>
 </html>
