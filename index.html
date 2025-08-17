@@ -6,7 +6,7 @@
   <title>Mir Articles</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 🔹 Анимация underline для меню на ПК */
+    /* 🔹 underline-анимация меню на ПК */
     .nav-link {
       position: relative;
       transition: color 0.3s ease;
@@ -21,11 +21,9 @@
       background: #a855f7;
       transition: width 0.3s ease;
     }
-    .nav-link:hover::after {
-      width: 100%;
-    }
+    .nav-link:hover::after { width: 100%; }
 
-    /* 🔹 Анимация выпадания мобильного меню */
+    /* 🔹 выпадающее меню на телефоне */
     #mobile-menu {
       transform: scaleY(0);
       transform-origin: top;
@@ -37,43 +35,49 @@
       opacity: 1;
     }
 
-    /* 🔹 Анимация смены иконки меню */
-    .menu-icon {
-      transition: transform 0.3s ease;
-    }
-    .rotate {
-      transform: rotate(180deg);
-    }
+    /* 🔹 смена иконки меню */
+    .menu-icon { transition: transform 0.3s ease; }
+    .rotate { transform: rotate(180deg); }
 
-    /* 📱 На телефоне кнопка предсказаний прозрачнее */
+    /* 📱 на телефоне кнопка прозрачнее */
     @media (max-width: 768px) {
-      #fortune-btn {
-        opacity: 0.6;
-      }
+      #fortune-btn { opacity: 0.6; }
     }
 
-    /* 🌌 Слой со звёздами */
-    #stars-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
+    /* 🔹 карточки статей с прозрачностью */
+    .article-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 16px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    main, footer { position: relative; z-index: 10; }
+    .article-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+    }
+
+    /* 🔹 модалка статьи */
+    .article-modal {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(139, 92, 246, 0.25);
+      border-radius: 20px;
+    }
   </style>
 </head>
-<body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
-  <!-- 🌌 Фон со звёздами -->
-  <canvas id="stars-canvas"></canvas>
+<body class="antialiased leading-relaxed text-gray-200 bg-[#0f172a] relative">
+  <!-- 🌌 Canvas фон -->
+  <canvas id="stars-canvas" style="position:fixed;inset:0;z-index:-1;pointer-events:none;"></canvas>
 
   <!-- Шапка -->
-  <header class="w-full bg-[#111122] shadow-md fixed top-0 left-0 z-40">
+  <header class="w-full bg-[#111122]/90 shadow-md fixed top-0 left-0 z-40 backdrop-blur-md">
     <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
-      <!-- Лого + кнопка предсказаний -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
         <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
-        <button id="fortune-btn" 
-          class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-2 rounded-full shadow-md transition transform hover:scale-110 hover:opacity-100">
+        <!-- 🔮 кнопка рядом с логотипом -->
+        <button id="fortune-btn"
+          class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-2 rounded-full shadow-lg transition transform hover:scale-110 hover:opacity-100">
           🔮
         </button>
       </div>
@@ -82,7 +86,8 @@
       <nav class="hidden md:flex space-x-6">
         <a href="index.html" class="nav-link hover:text-purple-400">Главная</a>
         <a href="about.html" class="nav-link hover:text-purple-400">О проекте</a>
-        <a href="admin.html" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg transition duration-300 transform hover:scale-105">Вход</a>
+        <a href="admin.html"
+           class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg transition duration-300 transform hover:scale-105">Вход</a>
       </nav>
 
       <!-- Мобильное меню -->
@@ -93,8 +98,8 @@
       </div>
     </div>
 
-    <!-- Выпадающее меню на телефоне -->
-    <nav id="mobile-menu" class="hidden flex-col bg-[#1a1a2e] md:hidden px-4 pb-4 space-y-2">
+    <!-- Выпадающее меню -->
+    <nav id="mobile-menu" class="hidden flex-col bg-[#1a1a2e]/95 md:hidden px-4 pb-4 space-y-2 backdrop-blur-md">
       <a href="index.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">Главная</a>
       <a href="about.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">О проекте</a>
       <a href="admin.html" class="block py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center transition duration-300 transform hover:scale-105">Вход</a>
@@ -103,22 +108,20 @@
 
   <!-- Контент -->
   <main class="min-h-screen max-w-5xl mx-auto p-6 pt-32">
-    <h2 class="text-3xl font-bold mb-6 text-center">Последние статьи</h2>
-
-    <!-- 🔹 Контейнер для статей -->
+    <h2 class="text-3xl font-bold mb-6 text-center text-white">Последние статьи</h2>
     <section id="articles-container" class="grid gap-6 md:grid-cols-2">
       <p class="text-gray-400">Загрузка статей...</p>
     </section>
   </main>
 
   <!-- Подвал -->
-  <footer class="bg-[#111122] py-6 mt-12 text-center text-gray-400 text-sm">
+  <footer class="bg-[#111122]/90 backdrop-blur-md py-6 mt-12 text-center text-gray-400 text-sm">
     © 2025 Mir Articles · Все права защищены
   </footer>
 
   <!-- 🔮 Модалка предсказаний -->
-  <div id="fortune-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
-    <div class="bg-[#2c2c44] text-gray-200 rounded-xl shadow-2xl p-8 max-w-md w-11/12 transform scale-90 opacity-0 transition-all duration-300">
+  <div id="fortune-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden z-50">
+    <div class="article-modal text-gray-200 shadow-2xl p-8 max-w-md w-11/12 transform scale-90 opacity-0 transition-all duration-300">
       <h2 class="text-xl font-bold mb-4">✨ Ваше предсказание:</h2>
       <p id="fortune-text" class="italic text-lg mb-6"></p>
       <div class="flex gap-3">
@@ -131,196 +134,128 @@
   <!-- Подключаем логику статей -->
   <script type="module" src="articles.js"></script>
 
-  <!-- JS для меню + предсказаний + звёзд -->
+  <!-- JS -->
   <script>
-    /* ========== Мобильное меню ========== */
-    const menuBtn = document.getElementById("menu-btn");
-    const menuIcon = document.getElementById("menu-icon");
-    const mobileMenu = document.getElementById("mobile-menu");
-
-    let menuOpen = false;
-    menuBtn.addEventListener("click", () => {
-      if (!menuOpen) {
-        mobileMenu.classList.remove("hidden");
-        setTimeout(() => mobileMenu.classList.add("show"), 10);
-        menuIcon.textContent = "✖";
-        menuIcon.classList.add("rotate");
-        menuOpen = true;
-      } else {
-        mobileMenu.classList.remove("show");
-        setTimeout(() => mobileMenu.classList.add("hidden"), 300);
-        menuIcon.textContent = "☰";
-        menuIcon.classList.remove("rotate");
-        menuOpen = false;
-      }
-    });
-
-    /* ========== Предсказания ========== */
-    const predictions = [
-      "Сегодня тебя ждет приятный сюрприз.",
-      "Новые идеи принесут успех.",
-      "Улыбка откроет новые двери.",
-      "Скоро придет важная новость.",
-      "Ты движешься в правильном направлении.",
-      "Сегодня хороший день для смелых решений.",
-      "Кто-то вспомнит о тебе с теплом.",
-      "Твои усилия будут вознаграждены.",
-      "В ближайшие дни появится шанс начать новое.",
-      "Тебя ждет неожиданная встреча.",
-      "Твоя энергия заразительна, используй её!",
-      "Верь в себя — это ключ ко всему.",
-      "Даже маленький шаг сегодня приблизит тебя к мечте.",
-      "Жизнь готовит для тебя приятный поворот.",
-      "Удача улыбается тем, кто улыбается миру.",
-      "Всё получится лучше, чем ты думаешь."
-    ];
-
-    const fortuneBtn = document.getElementById("fortune-btn");
-    const fortuneModal = document.getElementById("fortune-modal");
-    const fortuneText = document.getElementById("fortune-text");
-    const closeFortune = document.getElementById("close-fortune");
-    const shareFortune = document.getElementById("share-fortune");
-
-    let currentPrediction = "";
-
-    function typeWriter(text, element, speed = 40) {
-      element.textContent = "";
-      let i = 0;
-      (function typing() {
-        if (i < text.length) {
-          element.textContent += text.charAt(i);
-          i++;
-          setTimeout(typing, speed);
-        }
-      })();
-    }
-
-    // Открыть
-    fortuneBtn.addEventListener("click", () => {
-      currentPrediction = predictions[Math.floor(Math.random() * predictions.length)];
-      fortuneModal.classList.remove("hidden");
-      setTimeout(() => {
-        const box = fortuneModal.children[0];
-        box.classList.remove("scale-90", "opacity-0");
-        box.classList.add("scale-100", "opacity-100");
-        typeWriter(currentPrediction, fortuneText, 40);
-      }, 10);
-    });
-
-    // Закрыть
-    closeFortune.addEventListener("click", () => {
-      const box = fortuneModal.children[0];
-      box.classList.add("scale-90", "opacity-0");
-      setTimeout(() => fortuneModal.classList.add("hidden"), 300);
-    });
-
-    // Поделиться
-    shareFortune.addEventListener("click", () => {
-      const text = `✨ Моё предсказание: "${currentPrediction}" — узнай своё на Mir Articles! 🔮`;
-
-      if (navigator.share) {
-        navigator.share({
-          title: "Mir Articles — предсказания",
-          text: text,
-          url: window.location.href
-        }).catch(err => console.log("Ошибка шаринга:", err));
-      } else {
-        navigator.clipboard.writeText(text).then(() => {
-          alert("Предсказание скопировано в буфер! 📋");
-        });
-      }
-    });
-
-    /* ========== Плавающие звёзды ========== */
-    (function initStars() {
+    // 🌌 Canvas звезды
+    (function(){
       const canvas = document.getElementById('stars-canvas');
+      if(!canvas) return;
       const ctx = canvas.getContext('2d');
       let stars = [];
-      let width = 0, height = 0, dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-      const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
 
-      function resize() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = Math.floor(width * dpr);
-        canvas.height = Math.floor(height * dpr);
-        canvas.style.width = width + 'px';
-        canvas.style.height = height + 'px';
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      function resize(){
+        canvas.width = Math.floor(window.innerWidth * DPR);
+        canvas.height = Math.floor(window.innerHeight * DPR);
+        canvas.style.width = window.innerWidth + 'px';
+        canvas.style.height = window.innerHeight + 'px';
+        ctx.setTransform(DPR,0,0,DPR,0,0);
+        initStars();
       }
-
-      function makeStars() {
+      function initStars(){
         stars = [];
-        const baseCount = Math.floor((width * height) / 18000);
-        const mobile = width < 768;
-        const count = Math.max(40, Math.min(220, mobile ? Math.floor(baseCount * 0.6) : baseCount));
-
-        for (let i = 0; i < count; i++) {
+        const area = window.innerWidth * window.innerHeight;
+        const base = Math.floor(area / 18000);
+        const count = Math.max(60, Math.min(220, base));
+        for(let i=0;i<count;i++){
           stars.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            r: Math.random() * 1.4 + 0.3,
-            a: Math.random() * 0.6 + 0.2,
-            tw: Math.random() * 0.6 + 0.2,
-            spx: (Math.random() - 0.5) * 0.06,
-            spy: (Math.random() - 0.5) * 0.06,
-            phase: Math.random() * Math.PI * 2
+            x: Math.random()*window.innerWidth,
+            y: Math.random()*window.innerHeight,
+            r: Math.random()*1.6+0.3,
+            a: Math.random()*0.7+0.2,
+            tw: Math.random()*0.6+0.1,
+            vx: (Math.random()-0.5)*0.02,
+            vy: (Math.random()-0.5)*0.02,
+            phase: Math.random()*Math.PI*2
           });
         }
       }
-
-      function drawStar(s) {
-        const alpha = s.a + Math.sin(s.phase) * s.tw * 0.6;
-        ctx.globalAlpha = Math.max(0.05, Math.min(0.9, alpha));
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(200, 180, 255, 1)';
-        ctx.fill();
-      }
-
-      let rafId = null;
-      function animate() {
-        ctx.clearRect(0, 0, width, height);
-        for (const s of stars) {
+      function draw(){
+        ctx.clearRect(0,0,canvas.width/DPR, canvas.height/DPR);
+        for(const s of stars){
           s.phase += 0.02;
-          s.x += s.spx;
-          s.y += s.spy;
-          if (s.x < -2) s.x = width + 2;
-          if (s.x > width + 2) s.x = -2;
-          if (s.y < -2) s.y = height + 2;
-          if (s.y > height + 2) s.y = -2;
-          drawStar(s);
+          s.x += s.vx; s.y += s.vy;
+          if(s.x<-5) s.x=window.innerWidth+5;
+          if(s.x>window.innerWidth+5) s.x=-5;
+          if(s.y<-5) s.y=window.innerHeight+5;
+          if(s.y>window.innerHeight+5) s.y=-5;
+          const alpha = Math.max(0.05, Math.min(0.95, s.a + Math.sin(s.phase)*s.tw));
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle='white';
+          ctx.beginPath();
+          ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+          ctx.fill();
         }
-        rafId = requestAnimationFrame(animate);
+        requestAnimationFrame(draw);
       }
-
-      resize();
-      makeStars();
-
-      if (prefersReduced) {
-        ctx.clearRect(0, 0, width, height);
-        for (const s of stars) drawStar(s);
-      } else {
-        animate();
-      }
-
-      let resizeTimer;
-      window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-          resize();
-          makeStars();
-          if (prefersReduced) {
-            ctx.clearRect(0, 0, width, height);
-            for (const s of stars) drawStar(s);
-          }
-        }, 150);
-      });
-
-      window.addEventListener('beforeunload', () => {
-        if (rafId) cancelAnimationFrame(rafId);
-      });
+      window.addEventListener('resize', () => { clearTimeout(window._starR); window._starR=setTimeout(resize,120); });
+      resize(); draw();
     })();
+
+    // 📱 мобильное меню
+    const menuBtn=document.getElementById("menu-btn");
+    const menuIcon=document.getElementById("menu-icon");
+    const mobileMenu=document.getElementById("mobile-menu");
+    let menuOpen=false;
+    menuBtn.addEventListener("click",()=>{
+      if(!menuOpen){
+        mobileMenu.classList.remove("hidden");
+        setTimeout(()=>mobileMenu.classList.add("show"),10);
+        menuIcon.textContent="✖"; menuIcon.classList.add("rotate");
+        menuOpen=true;
+      } else {
+        mobileMenu.classList.remove("show");
+        setTimeout(()=>mobileMenu.classList.add("hidden"),300);
+        menuIcon.textContent="☰"; menuIcon.classList.remove("rotate");
+        menuOpen=false;
+      }
+    });
+
+    // 🔮 предсказания
+    const predictions=[
+      "Сегодня тебя ждет приятный сюрприз.","Новые идеи принесут успех.","Улыбка откроет новые двери.",
+      "Скоро придет важная новость.","Ты движешься в правильном направлении.","Сегодня хороший день для смелых решений.",
+      "Кто-то вспомнит о тебе с теплом.","Твои усилия будут вознаграждены.","В ближайшие дни появится шанс начать новое.",
+      "Тебя ждет неожиданная встреча.","Твоя энергия заразительна, используй её!","Верь в себя — это ключ ко всему.",
+      "Даже маленький шаг сегодня приблизит тебя к мечте.","Жизнь готовит для тебя приятный поворот.",
+      "Удача улыбается тем, кто улыбается миру.","Всё получится лучше, чем ты думаешь."
+    ];
+    const fortuneBtn=document.getElementById("fortune-btn");
+    const fortuneModal=document.getElementById("fortune-modal");
+    const fortuneText=document.getElementById("fortune-text");
+    const closeFortune=document.getElementById("close-fortune");
+    const shareFortune=document.getElementById("share-fortune");
+    let currentPrediction="";
+    function typeWriter(text,element,speed=40){
+      element.textContent=""; let i=0;
+      (function typing(){
+        if(i<text.length){ element.textContent+=text.charAt(i); i++; setTimeout(typing,speed); }
+      })();
+    }
+    fortuneBtn.addEventListener("click",()=>{
+      currentPrediction=predictions[Math.floor(Math.random()*predictions.length)];
+      fortuneModal.classList.remove("hidden");
+      setTimeout(()=>{
+        const box=fortuneModal.children[0];
+        box.classList.remove("scale-90","opacity-0");
+        box.classList.add("scale-100","opacity-100");
+        typeWriter(currentPrediction,fortuneText,40);
+      },10);
+    });
+    closeFortune.addEventListener("click",()=>{
+      const box=fortuneModal.children[0];
+      box.classList.add("scale-90","opacity-0");
+      setTimeout(()=>fortuneModal.classList.add("hidden"),300);
+    });
+    shareFortune.addEventListener("click",()=>{
+      const text=`✨ Моё предсказание: "${currentPrediction}" — узнай своё на Mir Articles! 🔮`;
+      if(navigator.share){
+        navigator.share({title:"Mir Articles — предсказания",text, url:window.location.href})
+          .catch(err=>console.log("Ошибка шаринга:",err));
+      } else {
+        navigator.clipboard.writeText(text).then(()=>{ alert("Предсказание скопировано в буфер! 📋"); });
+      }
+    });
   </script>
 </body>
 </html>
