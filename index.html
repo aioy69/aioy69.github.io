@@ -6,35 +6,7 @@
   <title>Mir Articles</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 🔹 Фон со звёздами */
-    body {
-      background: #0f172a;
-      background-image: radial-gradient(circle at top, #0f172a, #1a1a2e);
-      color: #e2e8f0;
-      overflow-x: hidden;
-      position: relative;
-      min-height: 100vh;
-    }
-    .stars {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: -1;
-      overflow: hidden;
-      pointer-events: none;
-    }
-    .star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      animation: twinkle 4s infinite ease-in-out;
-    }
-    @keyframes twinkle {
-      0%,100% { opacity: 0.2; }
-      50% { opacity: 1; }
-    }
-
-    /* 🔹 underline-анимация для меню */
+    /* 🔹 Анимация underline для меню на ПК */
     .nav-link {
       position: relative;
       transition: color 0.3s ease;
@@ -49,58 +21,91 @@
       background: #a855f7;
       transition: width 0.3s ease;
     }
-    .nav-link:hover::after { width: 100%; }
+    .nav-link:hover::after {
+      width: 100%;
+    }
 
-    /* 🔹 карточки статей с эффектом blur */
-    .article-card {
-      background: rgba(30, 41, 59, 0.25);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(139, 92, 246, 0.25);
-      border-radius: 16px;
+    /* 🔹 Анимация выпадания мобильного меню */
+    #mobile-menu {
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+    }
+    #mobile-menu.show {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+
+    /* 🔹 Анимация смены иконки меню */
+    .menu-icon {
+      transition: transform 0.3s ease;
+    }
+    .rotate {
+      transform: rotate(180deg);
+    }
+
+    /* 📱 На телефоне кнопка прозрачнее */
+    @media (max-width: 768px) {
+      #fortune-btn {
+        opacity: 0.6;
+      }
+    }
+
+    /* 🌌 Звёздный фон */
+    .stars {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      z-index: -1;
+    }
+    .star {
+      position: absolute;
+      background-color: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: twinkle 4s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    /* 🪟 Стеклянные карточки */
+    .glass-card {
+      background: rgba(44, 44, 68, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      border-radius: 1rem;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .article-card:hover {
+    .glass-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
-    }
-
-    /* 🔹 модалка статей / предсказаний */
-    .article-modal {
-      background: rgba(30, 41, 59, 0.25);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      border-radius: 20px;
-    }
-
-    /* 📱 прозрачнее на телефоне */
-    @media (max-width: 768px) {
-      #fortune-btn { opacity: 0.6; }
+      box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
     }
   </style>
 </head>
-<body class="antialiased leading-relaxed text-gray-200">
+<body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
   <!-- 🌌 Звёзды -->
   <div class="stars" id="stars-container"></div>
 
   <!-- Шапка -->
   <header class="w-full bg-[#111122]/80 backdrop-blur-md shadow-md fixed top-0 left-0 z-40">
     <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
-      <div class="flex items-center gap-3">
-        <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
-        <!-- 🔮 кнопка предсказаний в шапке -->
-        <button id="fortune-btn"
-          class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-2 rounded-full shadow-md hover:scale-105 transition">
-          🔮
-        </button>
-      </div>
+      <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
+
+      <!-- Кнопка предсказаний в шапке -->
+      <button id="fortune-btn" 
+        class="ml-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-2 rounded-full shadow-md hover:scale-110 transition z-50">
+        🔮
+      </button>
 
       <!-- Десктопное меню -->
       <nav class="hidden md:flex space-x-6">
         <a href="index.html" class="nav-link hover:text-purple-400">Главная</a>
         <a href="about.html" class="nav-link hover:text-purple-400">О проекте</a>
-        <a href="admin.html" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg transition">Вход</a>
+        <a href="admin.html" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg transition duration-300 transform hover:scale-105">Вход</a>
       </nav>
 
       <!-- Мобильное меню -->
@@ -111,11 +116,11 @@
       </div>
     </div>
 
-    <!-- Выпадающее меню -->
-    <nav id="mobile-menu" class="hidden flex-col bg-[#1a1a2e]/80 backdrop-blur-md md:hidden px-4 pb-4 space-y-2">
+    <!-- Выпадающее меню на телефоне -->
+    <nav id="mobile-menu" class="hidden flex-col bg-[#1a1a2e]/90 backdrop-blur-md md:hidden px-4 pb-4 space-y-2">
       <a href="index.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">Главная</a>
       <a href="about.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">О проекте</a>
-      <a href="admin.html" class="block py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center">Вход</a>
+      <a href="admin.html" class="block py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center transition duration-300 transform hover:scale-105">Вход</a>
     </nav>
   </header>
 
@@ -125,8 +130,9 @@
 
     <!-- 🔹 Контейнер для статей -->
     <section id="articles-container" class="grid gap-6 md:grid-cols-2">
-      <div class="article-card p-6">
-        <h3 class="text-xl font-bold mb-2 text-white">Загрузка статей...</h3>
+      <div class="glass-card p-6">
+        <h3 class="text-2xl font-bold text-white">Пример статьи</h3>
+        <p class="text-gray-300 mt-2">Это пример оформления карточки статьи в стиле «стекла».</p>
       </div>
     </section>
   </main>
@@ -137,8 +143,8 @@
   </footer>
 
   <!-- 🔮 Модалка предсказаний -->
-  <div id="fortune-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-50">
-    <div class="article-modal p-8 max-w-md w-11/12 transform scale-90 opacity-0 transition-all duration-300">
+  <div id="fortune-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
+    <div class="glass-card text-gray-200 rounded-xl shadow-2xl p-8 max-w-md w-11/12 transform scale-90 opacity-0 transition-all duration-300">
       <h2 class="text-xl font-bold mb-4">✨ Ваше предсказание:</h2>
       <p id="fortune-text" class="italic text-lg mb-6"></p>
       <div class="flex gap-3">
@@ -148,27 +154,31 @@
     </div>
   </div>
 
-  <!-- Подключаем статьи -->
+  <!-- Подключаем логику статей -->
   <script type="module" src="articles.js"></script>
 
-  <!-- JS: меню + звёзды + предсказания -->
+  <!-- JS для меню, предсказаний и звёзд -->
   <script>
-    // 🌌 Звёзды
+    // 🌌 Генерация звезд
     function createStars() {
       const container = document.getElementById('stars-container');
-      for (let i = 0; i < 120; i++) {
+      const starsCount = 120;
+      for (let i = 0; i < starsCount; i++) {
         const star = document.createElement('div');
         star.classList.add('star');
-        const size = Math.random() * 2 + 1;
+        const size = Math.random() * 3;
+        const posX = Math.random() * window.innerWidth;
+        const posY = Math.random() * window.innerHeight;
+        const delay = Math.random() * 5;
         star.style.width = `${size}px`;
         star.style.height = `${size}px`;
-        star.style.left = `${Math.random() * 100}%`;
-        star.style.top = `${Math.random() * 100}%`;
-        star.style.animationDelay = `${Math.random() * 4}s`;
+        star.style.left = `${posX}px`;
+        star.style.top = `${posY}px`;
+        star.style.animationDelay = `${delay}s`;
         container.appendChild(star);
       }
     }
-    document.addEventListener('DOMContentLoaded', createStars);
+    createStars();
 
     // 📱 Мобильное меню
     const menuBtn = document.getElementById("menu-btn");
@@ -195,10 +205,16 @@
     const predictions = [
       "Сегодня тебя ждет приятный сюрприз.",
       "Новые идеи принесут успех.",
+      "Улыбка откроет новые двери.",
       "Скоро придет важная новость.",
       "Ты движешься в правильном направлении.",
-      "Верь в себя — это ключ ко всему."
+      "Сегодня хороший день для смелых решений.",
+      "Кто-то вспомнит о тебе с теплом.",
+      "Твои усилия будут вознаграждены.",
+      "В ближайшие дни появится шанс начать новое.",
+      "Тебя ждет неожиданная встреча."
     ];
+
     const fortuneBtn = document.getElementById("fortune-btn");
     const fortuneModal = document.getElementById("fortune-modal");
     const fortuneText = document.getElementById("fortune-text");
@@ -238,9 +254,15 @@
     shareFortune.addEventListener("click", () => {
       const text = `✨ Моё предсказание: "${currentPrediction}" — узнай своё на Mir Articles! 🔮`;
       if (navigator.share) {
-        navigator.share({ title: "Mir Articles", text, url: window.location.href });
+        navigator.share({
+          title: "Mir Articles — предсказания",
+          text: text,
+          url: window.location.href
+        }).catch(err => console.log("Ошибка шаринга:", err));
       } else {
-        navigator.clipboard.writeText(text).then(() => alert("Предсказание скопировано 📋"));
+        navigator.clipboard.writeText(text).then(() => {
+          alert("Предсказание скопировано в буфер! 📋");
+        });
       }
     });
   </script>
