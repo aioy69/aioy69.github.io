@@ -48,7 +48,7 @@
 </head>
 <body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
   <!-- Шапка -->
-  <header class="w-full bg-[#111122] shadow-md">
+  <header class="w-full bg-[#111122] shadow-md fixed top-0 left-0 z-40">
     <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
       <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
 
@@ -75,8 +75,15 @@
     </nav>
   </header>
 
+  <!-- 🔮 Плавающая кнопка -->
+  <button id="fortune-btn" 
+    class="fixed top-24 right-4 bg-gradient-to-r from-purple-600 to-pink-600 
+    text-white p-4 rounded-full shadow-xl transition transform hover:scale-110 z-50">
+    🔮
+  </button>
+
   <!-- Контент -->
-  <main class="min-h-screen max-w-5xl mx-auto p-6">
+  <main class="min-h-screen max-w-5xl mx-auto p-6 pt-32">
     <h2 class="text-3xl font-bold mb-6 text-center">Последние статьи</h2>
 
     <!-- 🔹 Контейнер для статей -->
@@ -90,17 +97,29 @@
     © 2025 Mir Articles · Все права защищены
   </footer>
 
-  <!-- Подключаем логику -->
+  <!-- 🔮 Модалка предсказаний -->
+  <div id="fortune-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
+    <div class="bg-[#2c2c44] text-gray-200 rounded-xl shadow-2xl p-8 max-w-md w-11/12 transform scale-90 opacity-0 transition-all duration-300">
+      <h2 class="text-xl font-bold mb-4">✨ Ваше предсказание:</h2>
+      <p id="fortune-text" class="italic text-lg mb-6"></p>
+      <div class="flex gap-3">
+        <button id="share-fortune" class="flex-1 bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg">Поделиться</button>
+        <button id="close-fortune" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Подключаем логику статей -->
   <script type="module" src="articles.js"></script>
 
-  <!-- JS для мобильного меню -->
+  <!-- JS для меню + предсказаний -->
   <script>
+    // Мобильное меню
     const menuBtn = document.getElementById("menu-btn");
     const menuIcon = document.getElementById("menu-icon");
     const mobileMenu = document.getElementById("mobile-menu");
 
     let menuOpen = false;
-
     menuBtn.addEventListener("click", () => {
       if (!menuOpen) {
         mobileMenu.classList.remove("hidden");
@@ -114,6 +133,82 @@
         menuIcon.textContent = "☰";
         menuIcon.classList.remove("rotate");
         menuOpen = false;
+      }
+    });
+
+    // 🔮 Предсказания
+    const predictions = [
+      "Сегодня тебя ждет приятный сюрприз.",
+      "Новые идеи принесут успех.",
+      "Улыбка откроет новые двери.",
+      "Скоро придет важная новость.",
+      "Ты движешься в правильном направлении.",
+      "Сегодня хороший день для смелых решений.",
+      "Кто-то вспомнит о тебе с теплом.",
+      "Твои усилия будут вознаграждены.",
+      "В ближайшие дни появится шанс начать новое.",
+      "Тебя ждет неожиданная встреча.",
+      "Твоя энергия заразительна, используй её!",
+      "Верь в себя — это ключ ко всему.",
+      "Даже маленький шаг сегодня приблизит тебя к мечте.",
+      "Жизнь готовит для тебя приятный поворот.",
+      "Удача улыбается тем, кто улыбается миру.",
+      "Всё получится лучше, чем ты думаешь."
+    ];
+
+    const fortuneBtn = document.getElementById("fortune-btn");
+    const fortuneModal = document.getElementById("fortune-modal");
+    const fortuneText = document.getElementById("fortune-text");
+    const closeFortune = document.getElementById("close-fortune");
+    const shareFortune = document.getElementById("share-fortune");
+
+    let currentPrediction = "";
+
+    function typeWriter(text, element, speed = 40) {
+      element.textContent = "";
+      let i = 0;
+      (function typing() {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          setTimeout(typing, speed);
+        }
+      })();
+    }
+
+    // Открыть
+    fortuneBtn.addEventListener("click", () => {
+      currentPrediction = predictions[Math.floor(Math.random() * predictions.length)];
+      fortuneModal.classList.remove("hidden");
+      setTimeout(() => {
+        const box = fortuneModal.children[0];
+        box.classList.remove("scale-90", "opacity-0");
+        box.classList.add("scale-100", "opacity-100");
+        typeWriter(currentPrediction, fortuneText, 40);
+      }, 10);
+    });
+
+    // Закрыть
+    closeFortune.addEventListener("click", () => {
+      const box = fortuneModal.children[0];
+      box.classList.add("scale-90", "opacity-0");
+      setTimeout(() => fortuneModal.classList.add("hidden"), 300);
+    });
+
+    // Поделиться
+    shareFortune.addEventListener("click", () => {
+      const text = `✨ Моё предсказание: "${currentPrediction}" — узнай своё на Mir Articles! 🔮`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: "Mir Articles — предсказания",
+          text: text,
+          url: window.location.href
+        }).catch(err => console.log("Ошибка шаринга:", err));
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          alert("Предсказание скопировано в буфер! 📋");
+        });
       }
     });
   </script>
