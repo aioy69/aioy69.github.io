@@ -1,33 +1,63 @@
-<header class="w-full bg-[#111122] shadow-md">
-  <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
-    <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mir Articles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="antialiased leading-relaxed text-gray-200 bg-[#1a1a2e]">
+  <!-- Шапка -->
+  <header class="w-full bg-[#111122] shadow-md">
+    <div class="max-w-6xl mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-extrabold text-white">✨ Mir Articles</h1>
 
-    <!-- Десктопное меню -->
-    <nav class="hidden md:flex space-x-4">
-      <a href="index.html" class="hover:text-purple-400">Главная</a>
-      <a href="about.html" class="hover:text-purple-400">О проекте</a>
-      <a href="admin.html" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg">Вход</a>
-    </nav>
+      <!-- Десктопное меню -->
+      <nav class="hidden md:flex space-x-4">
+        <a href="index.html" class="hover:text-purple-400">Главная</a>
+        <a href="about.html" class="hover:text-purple-400">О проекте</a>
+        <a href="admin.html" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg">Вход</a>
+      </nav>
 
-    <!-- Мобильное меню -->
-    <div class="md:hidden">
-      <button id="menu-btn" class="text-white text-2xl">☰</button>
+      <!-- Мобильное меню -->
+      <div class="md:hidden">
+        <button id="menu-btn" class="text-white text-2xl">☰</button>
+      </div>
     </div>
-  </div>
 
-  <!-- Выпадающее меню на телефоне -->
-  <nav id="mobile-menu" class="hidden flex-col bg-[#1a1a2e] md:hidden px-4 pb-4 space-y-2">
-    <a href="index.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">Главная</a>
-    <a href="about.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">О проекте</a>
-    <a href="admin.html" class="block py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center">Вход</a>
-  </nav>
-</header>
+    <!-- Выпадающее меню на телефоне -->
+    <nav id="mobile-menu" class="hidden flex-col bg-[#1a1a2e] md:hidden px-4 pb-4 space-y-2">
+      <a href="index.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">Главная</a>
+      <a href="about.html" class="block py-2 border-b border-gray-700 hover:text-purple-400">О проекте</a>
+      <a href="admin.html" class="block py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center">Вход</a>
+    </nav>
+  </header>
 
-<script>
-  // Открытие/закрытие мобильного меню
-  const menuBtn = document.getElementById("menu-btn");
-  const mobileMenu = document.getElementById("mobile-menu");
-  menuBtn.addEventListener("click", () => {
-    mobileMenu.classList.toggle("hidden");
-  });
-</script>
+  <!-- Контент -->
+  <main class="min-h-screen max-w-5xl mx-auto p-6">
+    <h2 class="text-3xl font-bold mb-6 text-center">Последние статьи</h2>
+
+    <!-- 🔹 Контейнер для статей -->
+    <section id="articles-container" class="grid gap-6 md:grid-cols-2">
+      <p class="text-gray-400">Загрузка статей...</p>
+    </section>
+  </main>
+
+  <!-- Подвал -->
+  <footer class="bg-[#111122] py-6 mt-12 text-center text-gray-400 text-sm">
+    © 2025 Mir Articles · Все права защищены
+  </footer>
+
+  <!-- Подключаем логику -->
+  <script type="module" src="articles.js"></script>
+
+  <!-- JS для мобильного меню -->
+  <script>
+    const menuBtn = document.getElementById("menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+    menuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+  </script>
+</body>
+</html>
