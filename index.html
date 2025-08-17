@@ -60,9 +60,9 @@
 
     /* 🔹 карточки статей с эффектом blur */
     .article-card {
-      background: rgba(30, 41, 59, 0.22);
-      backdrop-filter: blur(24px) saturate(120%);
-      -webkit-backdrop-filter: blur(24px) saturate(120%);
+      background: rgba(30, 41, 59, 0.15);
+      backdrop-filter: blur(28px) saturate(140%);
+      -webkit-backdrop-filter: blur(28px) saturate(140%);
       background-clip: padding-box;
       border: 1px solid rgba(139, 92, 246, 0.28);
       border-radius: 16px;
@@ -76,9 +76,9 @@
 
     /* 🔹 модалка статей / предсказаний */
     .article-modal {
-      background: rgba(30, 41, 59, 0.22);
-      backdrop-filter: blur(28px) saturate(120%);
-      -webkit-backdrop-filter: blur(28px) saturate(120%);
+      background: rgba(30, 41, 59, 0.15);
+      backdrop-filter: blur(32px) saturate(150%);
+      -webkit-backdrop-filter: blur(32px) saturate(150%);
       background-clip: padding-box;
       border: 1px solid rgba(139, 92, 246, 0.32);
       border-radius: 20px;
@@ -89,11 +89,12 @@
     @media (max-width: 768px) {
       #fortune-btn { opacity: 0.6; }
     }
+
     /* overlay blur for modal (works on iOS Safari) */
     #fortune-modal {
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      background-color: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background-color: rgba(0, 0, 0, 0.3);
     }
   </style>
 </head>
@@ -155,7 +156,7 @@
   </footer>
 
   <!-- 🔮 Модалка предсказаний -->
-  <div id="fortune-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm md:backdrop-blur-md flex items-center justify-center hidden z-50">
+  <div id="fortune-modal" class="fixed inset-0 flex items-center justify-center hidden z-50">
     <div class="article-modal p-8 max-w-md w-11/12 transform scale-90 opacity-0 transition-all duration-300">
       <h2 class="text-xl font-bold mb-4">✨ Ваше предсказание:</h2>
       <p id="fortune-text" class="italic text-lg mb-6"></p>
